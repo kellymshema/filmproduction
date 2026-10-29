@@ -46,10 +46,8 @@
             <span class="font-bold text-premiere-bright text-xs tracking-wide">FILM PRODUCTION HUB <span class="text-[10px] font-normal text-blue-400">| Premiere Studio Engine</span></span>
             <div class="h-4 w-[1px] bg-premiere-border mx-2"></div>
             <nav class="flex space-x-1 text-xs">
-                <button onclick="switchTab('studio')" id="tab-btn-studio" class="px-2.5 py-1 rounded bg-premiere-active text-white font-medium">Actors & IDs</button>
-                <button onclick="switchTab('prompts')" id="tab-btn-prompts" class="px-2.5 py-1 rounded hover:bg-premiere-hover text-premiere-text">Prompts</button>
-                <button onclick="switchTab('backgrounds')" id="tab-btn-backgrounds" class="px-2.5 py-1 rounded hover:bg-premiere-hover text-premiere-text">Backgrounds</button>
-                <button onclick="switchTab('sounds')" id="tab-btn-sounds" class="px-2.5 py-1 rounded hover:bg-premiere-hover text-premiere-text">Sound Console</button>
+                <button onclick="switchTab('studio')" id="tab-btn-studio" class="px-2.5 py-1 rounded bg-premiere-active text-white font-medium">Workspace</button>
+                <button onclick="switchTab('prompts')" id="tab-btn-prompts" class="px-2.5 py-1 rounded hover:bg-premiere-hover text-premiere-text">Prompt Manager</button>
             </nav>
         </div>
         <div class="flex items-center space-x-3">
@@ -64,55 +62,55 @@
         </div>
     </header>
 
-    <!-- Main Workspace Layout (Premiere Pro Split View) -->
+    <!-- Main Workspace Layout -->
     <div class="flex-1 flex overflow-hidden relative">
 
-        <!-- Left Sidebar: Actor Profile Manager & Inspector -->
-        <div class="w-[320px] border-r border-premiere-border flex flex-col bg-premiere-dark p-3 space-y-3 overflow-y-auto">
+        <!-- Left Sidebar: Actor Profile Manager & Prompt Spaces -->
+        <div class="w-[340px] border-r border-premiere-border flex flex-col bg-premiere-dark p-3 space-y-3 overflow-y-auto">
             <div class="flex justify-between items-center border-b border-premiere-border pb-2">
-                <span class="font-bold text-white text-xs flex items-center"><i class="fa-solid fa-user-gear text-purple-400 mr-1.5"></i> Actor Profile Manager</span>
-                <button onclick="addNewActor()" class="bg-purple-600 hover:bg-purple-500 text-white px-2 py-0.5 rounded text-[10px] font-medium"><i class="fa-solid fa-plus mr-1"></i>Add Actor</button>
+                <span class="font-bold text-white text-xs flex items-center"><i class="fa-solid fa-user-gear text-purple-400 mr-1.5"></i> Asset & Prompt Manager</span>
+                <button onclick="addNewAssetPrompt()" class="bg-purple-600 hover:bg-purple-500 text-white px-2 py-0.5 rounded text-[10px] font-medium"><i class="fa-solid fa-plus mr-1"></i>Add Item</button>
             </div>
+
+            <!-- Active Asset Selector -->
             <div>
-                <label class="text-[10px] text-gray-400 block mb-1">Select Active Actor to Inspect</label>
-                <select id="activeActorSelect" onchange="selectActiveActor(this.value)" class="w-full bg-premiere-panel border border-premiere-border rounded p-1.5 text-white text-xs">
+                <label class="text-[10px] text-gray-400 block mb-1">Select Active Asset to Prompt</label>
+                <select id="activeAssetSelect" onchange="selectActiveAsset(this.value)" class="w-full bg-premiere-panel border border-premiere-border rounded p-1.5 text-white text-xs">
                     <option value="ACTOR_01">ACTOR_01: Hero Operative</option>
                     <option value="ACTOR_02">ACTOR_02: Cyber Villain</option>
+                    <option value="BG_01">BG_01: Cyberpunk Neon City</option>
+                    <option value="SOUND_01">SOUND_01: Voiceover Kinyarwanda</option>
                 </select>
             </div>
-            <div class="bg-premiere-panel border border-premiere-border rounded p-3 space-y-3">
+
+            <!-- Working Prompt Box Container -->
+            <div class="bg-premiere-panel border border-premiere-border rounded p-3 space-y-3" id="promptEditorContainer">
                 <div class="flex justify-between items-center">
-                    <span class="font-bold text-purple-400 text-xs" id="currentActorIdLabel">ACTOR_01</span>
-                    <label class="cursor-pointer bg-premiere-border hover:bg-opacity-80 px-2 py-0.5 rounded text-[10px] text-white">
-                        <i class="fa-solid fa-upload mr-1"></i>Upload Photo <input type="file" accept="image/*" class="hidden" onchange="alert('Actor photo uploaded!')">
-                    </label>
+                    <span class="font-bold text-purple-400 text-xs" id="editorAssetTitle">ACTOR_01 Settings & Prompts</span>
+                    <span class="text-[10px] bg-blue-600 px-1.5 py-0.5 rounded text-white" id="editorAssetType">Actor</span>
                 </div>
+
                 <div>
-                    <label class="text-[10px] text-gray-400 block mb-1">Character/Actor Name</label>
-                    <input type="text" id="actorNameInput" value="Hero Operative" class="w-full bg-premiere-dark border border-premiere-border rounded p-1.5 text-white text-xs">
+                    <label class="text-[10px] text-gray-400 block mb-1">English Prompt / Script</label>
+                    <textarea id="promptEnInput" class="w-full bg-premiere-dark border border-premiere-border rounded p-2 text-white text-xs" rows="2" placeholder="Enter prompt...">Cinematic portrait of a Rwandan tech hero in neon studio lighting</textarea>
                 </div>
+
                 <div>
-                    <div class="flex justify-between text-[10px] text-gray-400 mb-1"><span>Scale Size</span><span class="text-white">100%</span></div>
+                    <label class="text-[10px] text-gray-400 block mb-1">Kinyarwanda Prompt (Uburyo bwa Kinyarwanda)</label>
+                    <textarea id="promptRwInput" class="w-full bg-premiere-dark border border-premiere-border rounded p-2 text-white text-xs" rows="2" placeholder="Andika mu Kinyarwanda...">Umugabo w'intwari ukora muri tekinoloji</textarea>
+                </div>
+
+                <div>
+                    <div class="flex justify-between text-[10px] text-gray-400 mb-1"><span>Scale / Intensity</span><span class="text-white">100%</span></div>
                     <input type="range" min="50" max="200" value="100" class="w-full accent-purple-500">
                 </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-[10px] text-gray-400 block mb-1">Pos X</label>
-                        <input type="range" min="-200" max="200" value="-120" class="w-full accent-purple-500">
-                    </div>
-                    <div>
-                        <label class="text-[10px] text-gray-400 block mb-1">Pos Y</label>
-                        <input type="range" min="-200" max="200" value="0" class="w-full accent-purple-500">
-                    </div>
-                </div>
+
                 <div class="flex items-center justify-between pt-1 border-t border-premiere-border">
-                    <span class="text-xs text-white">Chroma Key Matte</span>
+                    <span class="text-xs text-white">Chroma Key / Filter Active</span>
                     <input type="checkbox" checked class="accent-purple-600">
                 </div>
-                <div>
-                    <div class="flex justify-between text-[10px] text-gray-400 mb-1"><span>Virtual Light</span><span class="text-white">100%</span></div>
-                    <input type="range" min="0" max="100" value="100" class="w-full accent-purple-500">
-                </div>
+
+                <button onclick="saveAssetPrompts()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-1.5 rounded text-xs font-medium">Save Prompt Changes</button>
             </div>
         </div>
 
@@ -128,8 +126,8 @@
             </div>
 
             <!-- Program Monitor Canvas Preview -->
-            <div class="h-[42%] flex items-center justify-center relative bg-zinc-950 p-2 border-b border-premiere-border">
-                <canvas id="programCanvas" width="600" height="220" class="shadow-2xl border border-premiere-border rounded"></canvas>
+            <div class="h-[40%] flex items-center justify-center relative bg-zinc-950 p-2 border-b border-premiere-border">
+                <canvas id="programCanvas" width="600" height="200" class="shadow-2xl border border-premiere-border rounded"></canvas>
             </div>
 
             <!-- Touch Effect Bin Toolbar -->
@@ -139,7 +137,6 @@
                 <button onclick="applyEffect('Stabilizer')" class="px-2.5 py-1 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-white flex items-center space-x-1"><i class="fa-solid fa-video text-blue-400"></i><span>Stabilizer</span></button>
                 <button onclick="applyEffect('Speed 2.0x')" class="px-2.5 py-1 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-white flex items-center space-x-1"><i class="fa-solid fa-gauge-high text-amber-400"></i><span>Speed 2.0x</span></button>
                 <button onclick="applyEffect('SlowMo 0.5x')" class="px-2.5 py-1 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-white flex items-center space-x-1"><i class="fa-solid fa-person-running text-purple-400"></i><span>SlowMo 0.5x</span></button>
-                <button onclick="applyEffect('Fade In')" class="px-2.5 py-1 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-white flex items-center space-x-1"><i class="fa-solid fa-wand-magic text-pink-400"></i><span>Fade In</span></button>
             </div>
 
             <!-- Multi-Track Timeline Sequence -->
@@ -158,47 +155,38 @@
                 <!-- Tracks Container -->
                 <div class="p-2 space-y-1 bg-[#181818]" oncontextmenu="openContextMenu(event)">
                     <!-- V3 Track -->
-                    <div class="flex items-center bg-premiere-dark border border-premiere-border rounded h-10 relative">
-                        <div class="w-28 bg-premiere-panel px-2 border-r border-premiere-border text-[10px] font-bold text-white flex items-center">V3 V3 Actor Layer</div>
+                    <div class="flex items-center bg-premiere-dark border border-premiere-border rounded h-9 relative">
+                        <div class="w-28 bg-premiere-panel px-2 border-r border-premiere-border text-[10px] font-bold text-white flex items-center">V3 - Actor Layer</div>
                         <div class="flex-1 relative px-2">
-                            <div class="absolute h-7 bg-purple-600/40 border border-purple-400 rounded px-2 flex items-center justify-between text-[10px] text-white" style="left: 20px; width: 220px;">
+                            <div class="absolute h-6 bg-purple-600/40 border border-purple-400 rounded px-2 flex items-center justify-between text-[10px] text-white" style="left: 20px; width: 220px;">
                                 <span>ACTOR_02_Villain.png [Chroma Key]</span>
                             </div>
                         </div>
                     </div>
                     <!-- V2 Track -->
-                    <div class="flex items-center bg-premiere-dark border border-premiere-border rounded h-10 relative">
-                        <div class="w-28 bg-premiere-panel px-2 border-r border-premiere-border text-[10px] font-bold text-white flex items-center">V2 V2 Actor Layer</div>
+                    <div class="flex items-center bg-premiere-dark border border-premiere-border rounded h-9 relative">
+                        <div class="w-28 bg-premiere-panel px-2 border-r border-premiere-border text-[10px] font-bold text-white flex items-center">V2 - Actor Layer</div>
                         <div class="flex-1 relative px-2">
-                            <div class="absolute h-7 bg-blue-600/40 border border-blue-400 rounded px-2 flex items-center justify-between text-[10px] text-white" style="left: 60px; width: 260px;">
-                                <span>ACTOR_01_Hero.png [Chroma Key, Teal & Orange]</span>
+                            <div class="absolute h-6 bg-blue-600/40 border border-blue-400 rounded px-2 flex items-center justify-between text-[10px] text-white" style="left: 60px; width: 260px;">
+                                <span>ACTOR_01_Hero.png [Chroma Key]</span>
                             </div>
                         </div>
                     </div>
                     <!-- V1 Track -->
-                    <div class="flex items-center bg-premiere-dark border border-premiere-border rounded h-10 relative">
-                        <div class="w-28 bg-premiere-panel px-2 border-r border-premiere-border text-[10px] font-bold text-white flex items-center">V1 V1 Background</div>
+                    <div class="flex items-center bg-premiere-dark border border-premiere-border rounded h-9 relative">
+                        <div class="w-28 bg-premiere-panel px-2 border-r border-premiere-border text-[10px] font-bold text-white flex items-center">V1 - Backgrounds</div>
                         <div class="flex-1 relative px-2">
-                            <div class="absolute h-7 bg-emerald-600/40 border border-emerald-400 rounded px-2 flex items-center justify-between text-[10px] text-white" style="left: 0px; width: 340px;">
-                                <span>Cyberpunk_Neon_City.jpg</span>
+                            <div class="absolute h-6 bg-emerald-600/40 border border-emerald-400 rounded px-2 flex items-center justify-between text-[10px] text-white" style="left: 0px; width: 340px;">
+                                <span>BG_01: Cyberpunk_Neon_City.jpg</span>
                             </div>
                         </div>
                     </div>
                     <!-- A1 Track -->
-                    <div class="flex items-center bg-premiere-dark border border-premiere-border rounded h-10 relative">
-                        <div class="w-28 bg-premiere-panel px-2 border-r border-premiere-border text-[10px] font-bold text-white flex items-center">A1 A1 Voiceover</div>
+                    <div class="flex items-center bg-premiere-dark border border-premiere-border rounded h-9 relative">
+                        <div class="w-28 bg-premiere-panel px-2 border-r border-premiere-border text-[10px] font-bold text-white flex items-center">A1 - Voiceover</div>
                         <div class="flex-1 relative px-2">
-                            <div class="absolute h-7 bg-amber-600/40 border border-amber-400 rounded px-2 flex items-center justify-between text-[10px] text-white" style="left: 10px; width: 300px;">
-                                <span>Dialogue_Hero_A1.wav</span>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- A2 Track -->
-                    <div class="flex items-center bg-premiere-dark border border-premiere-border rounded h-10 relative">
-                        <div class="w-28 bg-premiere-panel px-2 border-r border-premiere-border text-[10px] font-bold text-white flex items-center">A2 A2 Background</div>
-                        <div class="flex-1 relative px-2">
-                            <div class="absolute h-7 bg-purple-900/40 border border-purple-700 rounded px-2 flex items-center justify-between text-[10px] text-white" style="left: 0px; width: 400px;">
-                                <span>Cinematic_Score_BGM.mp3</span>
+                            <div class="absolute h-6 bg-amber-600/40 border border-amber-400 rounded px-2 flex items-center justify-between text-[10px] text-white" style="left: 10px; width: 300px;">
+                                <span>SOUND_01: Dialogue_Hero_A1.wav</span>
                             </div>
                         </div>
                     </div>
@@ -208,14 +196,13 @@
 
     </div>
 
-    <!-- Right-Click Context Menu for Effects and Settings -->
+    <!-- Right-Click Context Menu -->
     <div id="customContextMenu" class="hidden absolute z-50 bg-premiere-panel border border-premiere-border rounded shadow-2xl py-1.5 w-56 text-xs text-white">
-        <div class="px-3 py-1.5 hover:bg-purple-600 cursor-pointer flex items-center space-x-2" onclick="contextAction('Razor Split')"><i class="fa-solid fa-scissors text-blue-300"></i><span>Razor Split Clip</span></div>
+        <div class="px-3 py-1.5 hover:bg-purple-600 cursor-pointer flex items-center space-x-2" onclick="contextAction('Edit Prompts')"><i class="fa-solid fa-pen text-blue-300"></i><span>Edit Prompt Settings</span></div>
         <div class="px-3 py-1.5 hover:bg-purple-600 cursor-pointer flex items-center space-x-2" onclick="contextAction('Chroma Key')"><i class="fa-solid fa-circle-half-stroke text-emerald-300"></i><span>Toggle Chroma Key</span></div>
         <div class="px-3 py-1.5 hover:bg-purple-600 cursor-pointer flex items-center space-x-2" onclick="contextAction('Stabilizer')"><i class="fa-solid fa-video text-purple-300"></i><span>Toggle Stabilizer</span></div>
-        <div class="px-3 py-1.5 hover:bg-purple-600 cursor-pointer flex items-center space-x-2" onclick="contextAction('Speed / Duration')"><i class="fa-solid fa-gauge-high text-amber-300"></i><span>Speed & Duration (2x / 0.5x)</span></div>
         <div class="border-t border-premiere-border my-1"></div>
-        <div class="px-3 py-1.5 hover:bg-red-600 cursor-pointer flex items-center space-x-2 text-red-300" onclick="contextAction('Delete')"><i class="fa-solid fa-trash"></i><span>Delete Clip</span></div>
+        <div class="px-3 py-1.5 hover:bg-red-600 cursor-pointer flex items-center space-x-2 text-red-300" onclick="contextAction('Delete')"><i class="fa-solid fa-trash"></i><span>Delete Item</span></div>
     </div>
 
     <!-- Export Modal -->
@@ -234,8 +221,31 @@
     <script>
         let currentLang = 'en';
 
-        function switchTab(tabId) {
-            alert(`Switched to tab: ${tabId}`);
+        // Asset Prompts Database state
+        const assetDatabase = {
+            'ACTOR_01': { type: 'Actor', title: 'ACTOR_01: Hero Operative', en: 'Cinematic portrait of a Rwandan tech hero in neon studio lighting', rw: 'Umugabo w\'intwari ukora muri tekinoloji' },
+            'ACTOR_02': { type: 'Actor', title: 'ACTOR_02: Cyber Villain', en: 'Cyberpunk antagonist watching from neon shadows', rw: 'Umuntu w\'umwanzi ureba mu icuraburindi' },
+            'BG_01': { type: 'Background', title: 'BG_01: Cyberpunk Neon City', en: 'Futuristic Kigali skyline at night with holographic billboards and rain', rw: 'Umujyi wa Kigali w\'ejo hazaza nijoro n\'amatara y\'ubwoko bwose' },
+            'SOUND_01': { type: 'Sound', title: 'SOUND_01: Voiceover Kinyarwanda', en: 'Clear voiceover dialogue introducing the digital mission', rw: 'Ijwi ryerekana gahunda nshya ya digital' }
+        };
+
+        function selectActiveAsset(assetId) {
+            const data = assetDatabase[assetId];
+            if(data) {
+                document.getElementById('editorAssetTitle').innerText = data.title;
+                document.getElementById('editorAssetType').innerText = data.type;
+                document.getElementById('promptEnInput').value = data.en;
+                document.getElementById('promptRwInput').value = data.rw;
+            }
+        }
+
+        function saveAssetPrompts() {
+            const activeId = document.getElementById('activeAssetSelect').value;
+            if(assetDatabase[activeId]) {
+                assetDatabase[activeId].en = document.getElementById('promptEnInput').value;
+                assetDatabase[activeId].rw = document.getElementById('promptRwInput').value;
+                alert(`Successfully saved prompts and settings for ${activeId}!`);
+            }
         }
 
         function toggleLanguage() {
@@ -243,16 +253,6 @@
             document.getElementById('langLabel').innerText = currentLang === 'en' ? 'EN / KIN' : 'KIN (Kinyarwanda)';
         }
 
-        function selectActiveActor(actorId) {
-            document.getElementById('currentActorIdLabel').innerText = actorId;
-            if(actorId === 'ACTOR_01') {
-                document.getElementById('actorNameInput').value = 'Hero Operative';
-            } else {
-                document.getElementById('actorNameInput').value = 'Cyber Villain';
-            }
-        }
-
-        // Right-Click Context Menu Support
         window.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             const menu = document.getElementById('customContextMenu');
@@ -266,7 +266,7 @@
         });
 
         function contextAction(action) {
-            alert(`Applied setting/effect: ${action}`);
+            alert(`Executed action: ${action}`);
         }
 
         function applyEffect(effectName) {
@@ -279,10 +279,10 @@
             ctx.fillStyle = '#0f0f11';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#10b981';
-            ctx.fillRect(180, 40, 240, 140);
+            ctx.fillRect(180, 30, 240, 120);
             ctx.fillStyle = '#ffffff';
-            ctx.font = '12px sans-serif';
-            ctx.fillText('ACTOR_01 (Green Screen Matte)', 190, 30);
+            ctx.font = '11px sans-serif';
+            ctx.fillText('ACTOR_01 (Prompt Mapped)', 190, 20);
             requestAnimationFrame(renderCanvas);
         }
         renderCanvas();
@@ -290,7 +290,7 @@
         function openExportModal() { document.getElementById('exportModal').classList.remove('hidden'); }
         function closeExportModal() { document.getElementById('exportModal').classList.add('hidden'); }
         function executeExport() { alert('Project scene successfully packaged for GitHub Pages!'); closeExportModal(); }
-        function addNewActor() { alert('New actor profile added successfully!'); }
+        function addNewAssetPrompt() { alert('New prompt asset slot created!'); }
         function addTrack(type) { alert(`New track ${type} added successfully!`); }
     </script>
 </body>
