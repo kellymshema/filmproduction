@@ -1,297 +1,1153 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" class="h-full bg-neutral-950 text-neutral-100 font-sans select-none">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Film Production Hub: Premiere Studio Engine</title>
+    <title>Film Production Hub - Premiere Studio Engine</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        premiere: {
-                            darkest: '#121212',
-                            dark: '#1e1e1e',
-                            panel: '#252525',
-                            border: '#333333',
-                            accent: '#0099ff',
-                            hover: '#2d2d2d',
-                            active: '#383838',
-                            text: '#cccccc',
-                            bright: '#ffffff'
+                        nle: {
+                            bg: '#121214',
+                            panel: '#1e1e24',
+                            header: '#26262e',
+                            border: '#31313d',
+                            accent: '#007acc',
+                            accentHover: '#0098ff',
                         }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
                     }
                 }
             }
         }
     </script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #1a1a1a; }
-        ::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555555; }
+        ::-webkit-scrollbar-track { background: #121214; }
+        ::-webkit-scrollbar-thumb { background: #31313d; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b4b5c; }
+
+        input[type=range] { accent-color: #007acc; }
+
+        .checkerboard-bg {
+            background-color: #1a1a20;
+            background-image: 
+                linear-gradient(45deg, #111115 25%, transparent 25%), 
+                linear-gradient(-45deg, #111115 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #111115 75%), 
+                linear-gradient(-45deg, transparent 75%, #111115 75%);
+            background-size: 16px 16px;
+            background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+        }
+
+        .playhead-head {
+            width: 0; height: 0;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-top: 10px solid #007acc;
+        }
+
+        /* Context Menu Styles */
+        .context-menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 12px;
+            font-size: 11px;
+            color: #d4d4d8;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+        .context-menu-item:hover {
+            background-color: #007acc;
+            color: #ffffff;
+        }
     </style>
 </head>
-<body class="bg-premiere-darkest text-premiere-text font-sans h-screen flex flex-col overflow-hidden select-none">
+<body class="h-full flex flex-col font-sans overflow-hidden bg-nle-bg text-neutral-200 select-none" onclick="hideContextMenu()" oncontextmenu="return false;">
 
-    <!-- Top Header -->
-    <header class="bg-premiere-dark border-b border-premiere-border h-12 flex items-center justify-between px-4 z-30">
-        <div class="flex items-center space-x-3">
-            <div class="bg-purple-600 text-white font-black px-2 py-0.5 rounded text-xs tracking-wider">PR</div>
-            <span class="font-bold text-premiere-bright text-xs tracking-wide">FILM PRODUCTION HUB <span class="text-[10px] font-normal text-blue-400">| Premiere Studio Engine</span></span>
-            <div class="h-4 w-[1px] bg-premiere-border mx-2"></div>
-            <nav class="flex space-x-1 text-xs">
-                <button onclick="switchTab('studio')" id="tab-btn-studio" class="px-2.5 py-1 rounded bg-premiere-active text-white font-medium">Workspace</button>
-                <button onclick="switchTab('prompts')" id="tab-btn-prompts" class="px-2.5 py-1 rounded hover:bg-premiere-hover text-premiere-text">Prompt Manager</button>
+    <!-- TOP MENU & TOOLBAR -->
+    <header class="h-10 bg-nle-header border-b border-nle-border flex items-center justify-between px-3 text-xs z-20 shrink-0">
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2 font-bold text-white tracking-wider">
+                <span class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-2 py-0.5 rounded text-xs font-mono">PR</span>
+                <span class="text-sm">FILM PRODUCTION HUB <span class="text-neutral-400 text-xs font-normal">| Premiere Studio Engine</span></span>
+            </div>
+            
+            <nav class="hidden md:flex items-center space-x-3 text-neutral-400">
+                <button class="hover:text-white transition">File</button>
+                <button class="hover:text-white transition">Edit</button>
+                <button class="hover:text-white transition">Sequence</button>
+                <button class="hover:text-white transition">Actors & Prompts</button>
+                <button class="hover:text-white transition">Audio Console</button>
+                <button class="hover:text-white transition">Export</button>
             </nav>
         </div>
+
+        <!-- Project Status & Bilingual Switch -->
         <div class="flex items-center space-x-3">
-            <button onclick="toggleLanguage()" id="langToggleBtn" class="bg-premiere-panel border border-premiere-border px-2 py-0.5 rounded text-[11px] hover:bg-premiere-hover text-white flex items-center space-x-1">
-                <i class="fa-solid fa-globe text-blue-400"></i>
-                <span id="langLabel">EN / KIN</span>
-            </button>
-            <button onclick="openExportModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded text-xs font-medium flex items-center space-x-1.5 shadow">
-                <i class="fa-solid fa-cloud-arrow-up"></i>
-                <span>Export Scene</span>
+            <div class="hidden sm:flex items-center space-x-2 bg-neutral-900 px-2 py-1 rounded border border-nle-border text-[11px]">
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-neutral-300 font-mono" id="sync-status">Database Connected</span>
+            </div>
+
+            <div class="flex items-center space-x-1 bg-neutral-900 rounded p-0.5 border border-nle-border">
+                <button id="lang-en" onclick="setLanguage('en')" class="px-2 py-0.5 text-[11px] rounded bg-nle-accent text-white font-medium">EN</button>
+                <button id="lang-rw" onclick="setLanguage('rw')" class="px-2 py-0.5 text-[11px] rounded text-neutral-400 hover:text-white font-medium">KIN</button>
+            </div>
+
+            <button onclick="openExportModal()" class="bg-nle-accent hover:bg-nle-accentHover text-white px-3 py-1 rounded text-xs font-medium flex items-center space-x-1.5 transition">
+                <i class="fa-solid fa-file-export text-[10px]"></i>
+                <span id="txt-export-btn">Export Scene</span>
             </button>
         </div>
     </header>
 
-    <!-- Main Workspace Layout -->
-    <div class="flex-1 flex overflow-hidden relative">
+    <!-- MAIN WORKSPACE LAYOUT -->
+    <div class="flex-1 flex flex-col md:flex-row overflow-hidden p-1 gap-1">
 
-        <!-- Left Sidebar: Actor Profile Manager & Prompt Spaces -->
-        <div class="w-[340px] border-r border-premiere-border flex flex-col bg-premiere-dark p-3 space-y-3 overflow-y-auto">
-            <div class="flex justify-between items-center border-b border-premiere-border pb-2">
-                <span class="font-bold text-white text-xs flex items-center"><i class="fa-solid fa-user-gear text-purple-400 mr-1.5"></i> Asset & Prompt Manager</span>
-                <button onclick="addNewAssetPrompt()" class="bg-purple-600 hover:bg-purple-500 text-white px-2 py-0.5 rounded text-[10px] font-medium"><i class="fa-solid fa-plus mr-1"></i>Add Item</button>
+        <!-- LEFT PANEL: MEDIA BIN, ACTORS & PROMPT MAPPING -->
+        <aside class="w-full md:w-80 lg:w-96 bg-nle-panel rounded border border-nle-border flex flex-col overflow-hidden shrink-0">
+            <!-- Tabs Header -->
+            <div class="h-9 bg-neutral-900 border-b border-nle-border flex items-center px-1 space-x-1 text-[11px]">
+                <button id="tab-actors-btn" onclick="switchLeftTab('actors')" class="px-2 py-1 rounded-t bg-nle-panel border-t border-x border-nle-accent text-white font-medium">
+                    <i class="fa-solid fa-users mr-1 text-purple-400"></i><span id="txt-tab-actors">Actors & IDs</span>
+                </button>
+                <button id="tab-prompts-btn" onclick="switchLeftTab('prompts')" class="px-2 py-1 rounded-t text-neutral-400 hover:text-white font-medium">
+                    <i class="fa-solid fa-feather mr-1 text-amber-400"></i><span id="txt-tab-prompts">Actor Prompts</span>
+                </button>
+                <button id="tab-bg-btn" onclick="switchLeftTab('bg')" class="px-2 py-1 rounded-t text-neutral-400 hover:text-white font-medium">
+                    <i class="fa-solid fa-images mr-1 text-blue-400"></i><span id="txt-tab-bg">Backgrounds</span>
+                </button>
+                <button id="tab-audio-btn" onclick="switchLeftTab('audio')" class="px-2 py-1 rounded-t text-neutral-400 hover:text-white font-medium">
+                    <i class="fa-solid fa-compact-disc mr-1 text-emerald-400"></i><span id="txt-tab-audio">Sound Console</span>
+                </button>
             </div>
 
-            <!-- Active Asset Selector -->
-            <div>
-                <label class="text-[10px] text-gray-400 block mb-1">Select Active Asset to Prompt</label>
-                <select id="activeAssetSelect" onchange="selectActiveAsset(this.value)" class="w-full bg-premiere-panel border border-premiere-border rounded p-1.5 text-white text-xs">
-                    <option value="ACTOR_01">ACTOR_01: Hero Operative</option>
-                    <option value="ACTOR_02">ACTOR_02: Cyber Villain</option>
-                    <option value="BG_01">BG_01: Cyberpunk Neon City</option>
-                    <option value="SOUND_01">SOUND_01: Voiceover Kinyarwanda</option>
-                </select>
+            <!-- TAB 1: ACTORS MANAGEMENT & TRANSFORM INSPECTOR -->
+            <div id="tab-actors" class="flex-1 flex flex-col overflow-y-auto p-3 space-y-4">
+                
+                <div class="flex items-center justify-between border-b border-nle-border pb-2">
+                    <span class="text-xs font-semibold text-neutral-300"><i class="fa-solid fa-user-plus text-purple-400 mr-1.5"></i>Actor Profile Manager</span>
+                    <button onclick="addActorProfile()" class="px-2 py-1 bg-purple-900/60 hover:bg-purple-800 text-purple-200 border border-purple-500 rounded text-[10px] font-mono flex items-center space-x-1">
+                        <i class="fa-solid fa-plus"></i> <span>Add Actor</span>
+                    </button>
+                </div>
+
+                <!-- Actor Selector -->
+                <div class="space-y-1.5">
+                    <label class="text-[11px] text-neutral-400">Select Active Actor to Inspect</label>
+                    <select id="actor-select" onchange="selectActorLayer(this.value)" class="w-full bg-neutral-900 border border-nle-border text-xs rounded p-1.5 text-neutral-200 font-mono focus:border-nle-accent">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <!-- Active Actor Card Controls -->
+                <div class="bg-neutral-900 p-2.5 rounded border border-nle-border space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span id="active-actor-id-tag" class="text-xs font-mono font-bold text-purple-300">ACTOR_01</span>
+                        <label class="cursor-pointer bg-neutral-800 hover:bg-neutral-700 text-white px-2 py-1 rounded border border-nle-border text-[10px] flex items-center transition">
+                            <i class="fa-solid fa-upload mr-1 text-purple-400"></i> Upload Photo
+                            <input type="file" accept="image/*" class="hidden" onchange="handleFileUpload(event, 'actor')">
+                        </label>
+                    </div>
+
+                    <!-- Actor Name -->
+                    <div class="space-y-1">
+                        <label class="text-[10px] text-neutral-400">Character/Actor Name</label>
+                        <input type="text" id="active-actor-name-input" onchange="updateActorName(this.value)" class="w-full bg-neutral-950 border border-nle-border text-xs rounded p-1.5 text-white font-medium">
+                    </div>
+
+                    <!-- Transform Sliders -->
+                    <div class="space-y-2 pt-1 border-t border-neutral-800">
+                        <div class="flex justify-between text-[11px] text-neutral-400">
+                            <span>Scale Size</span>
+                            <span id="val-actor-scale" class="font-mono text-neutral-200">100%</span>
+                        </div>
+                        <input type="range" id="slider-actor-scale" min="20" max="200" value="100" oninput="updateTransforms()" class="w-full h-1 bg-neutral-800 rounded appearance-none cursor-pointer">
+
+                        <div class="grid grid-cols-2 gap-2 pt-1">
+                            <div>
+                                <div class="flex justify-between text-[10px] text-neutral-400">
+                                    <span>Pos X</span>
+                                    <span id="val-actor-x" class="font-mono text-neutral-200">0</span>
+                                </div>
+                                <input type="range" id="slider-actor-x" min="-400" max="400" value="0" oninput="updateTransforms()" class="w-full h-1 bg-neutral-800 rounded appearance-none cursor-pointer">
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] text-neutral-400">
+                                    <span>Pos Y</span>
+                                    <span id="val-actor-y" class="font-mono text-neutral-200">0</span>
+                                </div>
+                                <input type="range" id="slider-actor-y" min="-250" max="250" value="0" oninput="updateTransforms()" class="w-full h-1 bg-neutral-800 rounded appearance-none cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Keying and Lighting -->
+                    <div class="space-y-2 pt-1 border-t border-neutral-800">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-neutral-300">Chroma Key Matte</span>
+                            <input type="checkbox" id="fx-keying-toggle" checked onchange="updateFX()" class="accent-nle-accent rounded cursor-pointer">
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] text-neutral-400">
+                            <span>Virtual Light</span>
+                            <span id="val-light" class="font-mono text-neutral-200">100%</span>
+                        </div>
+                        <input type="range" id="slider-light" min="30" max="180" value="100" oninput="updateFX()" class="w-full h-1 bg-neutral-800 rounded appearance-none cursor-pointer">
+                    </div>
+                </div>
+
             </div>
 
-            <!-- Working Prompt Box Container -->
-            <div class="bg-premiere-panel border border-premiere-border rounded p-3 space-y-3" id="promptEditorContainer">
-                <div class="flex justify-between items-center">
-                    <span class="font-bold text-purple-400 text-xs" id="editorAssetTitle">ACTOR_01 Settings & Prompts</span>
-                    <span class="text-[10px] bg-blue-600 px-1.5 py-0.5 rounded text-white" id="editorAssetType">Actor</span>
+            <!-- TAB 2: ACTOR-SPECIFIC PROMPTS (MAPPED BY ACTOR ID) -->
+            <div id="tab-prompts" class="hidden flex-1 flex flex-col overflow-y-auto p-3 space-y-3">
+                <div class="text-xs font-semibold text-neutral-300 flex items-center justify-between border-b border-nle-border pb-2">
+                    <span><i class="fa-solid fa-feather text-amber-400 mr-1.5"></i>Scene Prompts by Actor ID</span>
+                    <span class="text-[9px] text-amber-400 font-mono">DYNAMIC MAPPING</span>
                 </div>
 
-                <div>
-                    <label class="text-[10px] text-gray-400 block mb-1">English Prompt / Script</label>
-                    <textarea id="promptEnInput" class="w-full bg-premiere-dark border border-premiere-border rounded p-2 text-white text-xs" rows="2" placeholder="Enter prompt...">Cinematic portrait of a Rwandan tech hero in neon studio lighting</textarea>
+                <div class="text-[11px] text-neutral-400">Each active actor profile has its own dedicated AI generator prompt and dialogue parameters:</div>
+
+                <!-- Container dynamically populated with prompt cards per Actor ID -->
+                <div id="actor-prompts-container" class="space-y-3">
+                    <!-- Dynamic Actor Prompt Cards inserted here -->
                 </div>
 
-                <div>
-                    <label class="text-[10px] text-gray-400 block mb-1">Kinyarwanda Prompt (Uburyo bwa Kinyarwanda)</label>
-                    <textarea id="promptRwInput" class="w-full bg-premiere-dark border border-premiere-border rounded p-2 text-white text-xs" rows="2" placeholder="Andika mu Kinyarwanda...">Umugabo w'intwari ukora muri tekinoloji</textarea>
+                <!-- Scene Camera & Environment Parameters -->
+                <div class="bg-neutral-900 p-2.5 rounded border border-nle-border space-y-2 pt-2">
+                    <div class="text-[11px] font-semibold text-neutral-300">Global Camera Motion</div>
+                    <select id="camera-motion" onchange="setCameraMotion(this.value)" class="w-full bg-neutral-950 border border-nle-border text-xs rounded p-1.5 text-neutral-200">
+                        <option value="static">Static Lock-off Shot</option>
+                        <option value="pan" selected>Slow Pan Right</option>
+                        <option value="zoom">Dramatic Zoom In</option>
+                        <option value="tracking">Smooth Tracking Shot</option>
+                        <option value="crane">Crane Overhead View</option>
+                    </select>
                 </div>
 
-                <div>
-                    <div class="flex justify-between text-[10px] text-gray-400 mb-1"><span>Scale / Intensity</span><span class="text-white">100%</span></div>
-                    <input type="range" min="50" max="200" value="100" class="w-full accent-purple-500">
-                </div>
-
-                <div class="flex items-center justify-between pt-1 border-t border-premiere-border">
-                    <span class="text-xs text-white">Chroma Key / Filter Active</span>
-                    <input type="checkbox" checked class="accent-purple-600">
-                </div>
-
-                <button onclick="saveAssetPrompts()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-1.5 rounded text-xs font-medium">Save Prompt Changes</button>
-            </div>
-        </div>
-
-        <!-- Right Main Workspace: Program Monitor & Multi-Track Timeline -->
-        <div class="flex-1 flex flex-col overflow-hidden bg-black">
-            <!-- Program Monitor Header -->
-            <div class="bg-premiere-panel px-3 py-1.5 border-b border-premiere-border text-xs font-semibold text-premiere-bright flex justify-between items-center">
-                <span><i class="fa-solid fa-tv text-blue-400 mr-1.5"></i> Program Monitor: Sequence 01</span>
-                <div class="flex items-center space-x-2">
-                    <button onclick="alert('Playing preview')" class="bg-premiere-border hover:bg-premiere-active px-2 py-0.5 rounded text-white"><i class="fa-solid fa-play"></i></button>
-                    <button onclick="alert('Stopping preview')" class="bg-premiere-border hover:bg-premiere-active px-2 py-0.5 rounded text-white"><i class="fa-solid fa-stop"></i></button>
-                </div>
+                <button onclick="synthesizeScene()" class="w-full bg-gradient-to-r from-amber-600 to-purple-600 hover:from-amber-500 hover:to-purple-500 text-white font-semibold py-2 px-3 rounded text-xs flex items-center justify-center space-x-2 transition shadow">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Compile Scene Prompts</span>
+                </button>
             </div>
 
-            <!-- Program Monitor Canvas Preview -->
-            <div class="h-[40%] flex items-center justify-center relative bg-zinc-950 p-2 border-b border-premiere-border">
-                <canvas id="programCanvas" width="600" height="200" class="shadow-2xl border border-premiere-border rounded"></canvas>
+            <!-- TAB 3: MULTI-BACKGROUND LIBRARY & VIDEO PLATES -->
+            <div id="tab-bg" class="hidden flex-1 flex flex-col overflow-y-auto p-3 space-y-3">
+                <div class="text-xs font-semibold text-neutral-300 flex items-center justify-between border-b border-nle-border pb-2">
+                    <span><i class="fa-solid fa-images text-blue-400 mr-1.5"></i>Multi-Background Library</span>
+                    <label class="cursor-pointer bg-neutral-800 hover:bg-neutral-700 text-white px-2 py-0.5 rounded border border-nle-border text-[10px]">
+                        + Add Custom
+                        <input type="file" accept="image/*,video/mp4" class="hidden" onchange="handleFileUpload(event, 'bg')">
+                    </label>
+                </div>
+
+                <div class="text-[11px] text-neutral-400">Select active background plate to map to track <span class="font-mono text-blue-400">V1</span>:</div>
+
+                <!-- Background Grid Presets -->
+                <div class="grid grid-cols-2 gap-2" id="bg-library-grid">
+                    <!-- Dynamically populated background options -->
+                </div>
+
+                <!-- Background Depth Effects -->
+                <div class="bg-neutral-900 p-2.5 rounded border border-nle-border space-y-2">
+                    <div class="text-[11px] font-semibold text-neutral-300">Background Post-Processing</div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[11px] text-neutral-400">
+                            <span>Depth Blur</span>
+                            <span id="val-blur" class="font-mono text-neutral-200">3px</span>
+                        </div>
+                        <input type="range" id="slider-blur" min="0" max="15" value="3" oninput="updateFX()" class="w-full h-1 bg-neutral-800 rounded appearance-none cursor-pointer">
+                    </div>
+                </div>
             </div>
 
-            <!-- Touch Effect Bin Toolbar -->
-            <div class="bg-premiere-dark px-3 py-1.5 border-b border-premiere-border flex items-center space-x-2 text-[11px] overflow-x-auto">
-                <span class="text-gray-400 font-bold uppercase text-[10px]">Touch Effect Bin:</span>
-                <button onclick="applyEffect('Chroma Key')" class="px-2.5 py-1 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-white flex items-center space-x-1"><i class="fa-solid fa-circle-half-stroke text-emerald-400"></i><span>Chroma Key</span></button>
-                <button onclick="applyEffect('Stabilizer')" class="px-2.5 py-1 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-white flex items-center space-x-1"><i class="fa-solid fa-video text-blue-400"></i><span>Stabilizer</span></button>
-                <button onclick="applyEffect('Speed 2.0x')" class="px-2.5 py-1 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-white flex items-center space-x-1"><i class="fa-solid fa-gauge-high text-amber-400"></i><span>Speed 2.0x</span></button>
-                <button onclick="applyEffect('SlowMo 0.5x')" class="px-2.5 py-1 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-white flex items-center space-x-1"><i class="fa-solid fa-person-running text-purple-400"></i><span>SlowMo 0.5x</span></button>
+            <!-- TAB 4: MULTI-TRACK SOUND & SFX CONSOLE -->
+            <div id="tab-audio" class="hidden flex-1 flex flex-col overflow-y-auto p-3 space-y-3">
+                <div class="text-xs font-semibold text-neutral-300 flex items-center justify-between border-b border-nle-border pb-2">
+                    <span><i class="fa-solid fa-compact-disc text-emerald-400 mr-1.5"></i>Multi-Track Audio Mixer</span>
+                    <label class="cursor-pointer bg-neutral-800 hover:bg-neutral-700 text-white px-2 py-0.5 rounded border border-nle-border text-[10px]">
+                        + Upload Audio
+                        <input type="file" accept="audio/*" class="hidden" onchange="handleFileUpload(event, 'audio')">
+                    </label>
+                </div>
+
+                <!-- Live Voiceover Studio Mic Recorder -->
+                <div class="bg-neutral-900 p-2.5 rounded border border-nle-border text-center space-y-1.5">
+                    <div class="text-[11px] text-neutral-300 font-medium">Record Dialogue into Track A1</div>
+                    <button id="btn-record-mic" onclick="toggleMicRecording()" class="px-3 py-1.5 rounded-full bg-red-600 hover:bg-red-500 text-white text-xs font-semibold flex items-center justify-center space-x-1.5 transition mx-auto">
+                        <i id="mic-icon" class="fa-solid fa-microphone"></i>
+                        <span id="mic-status-txt">Record Voiceover</span>
+                    </button>
+                    <div id="mic-timer" class="hidden text-xs font-mono text-red-400 animate-pulse">REC: 00:00</div>
+                </div>
+
+                <!-- Multi-Track Fader Controls (A1, A2, A3, A4) -->
+                <div class="space-y-2" id="audio-faders-container">
+                    <!-- Populated dynamically for A1, A2, A3, A4 -->
+                </div>
             </div>
 
-            <!-- Multi-Track Timeline Sequence -->
-            <div class="flex-1 flex flex-col bg-premiere-darkest overflow-y-auto">
-                <div class="bg-premiere-panel px-3 py-1.5 border-b border-premiere-border flex items-center justify-between text-xs">
+        </aside>
+
+        <!-- CENTER & RIGHT: PROGRAM MONITOR & MULTI-TRACK TIMELINE -->
+        <main class="flex-1 flex flex-col gap-1 overflow-hidden">
+            
+            <!-- PROGRAM MONITOR SECTION -->
+            <section class="flex-1 bg-nle-panel rounded border border-nle-border flex flex-col overflow-hidden min-h-[280px]">
+                
+                <!-- Monitor Header -->
+                <div class="h-8 bg-neutral-900 border-b border-nle-border flex items-center justify-between px-3 text-xs">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                        <span class="font-semibold text-neutral-200" id="txt-program-monitor">Program Monitor: Sequence 01</span>
+                    </div>
+
+                    <!-- Timecode Display -->
+                    <div class="font-mono text-xs bg-black px-3 py-0.5 rounded border border-neutral-800 text-blue-400 tracking-wider" id="timecode-display">
+                        00:00:00:00
+                    </div>
+                </div>
+
+                <!-- Canvas Viewport -->
+                <div class="flex-1 bg-black relative flex items-center justify-center overflow-hidden checkerboard-bg">
+                    <canvas id="main-program-canvas" class="max-w-full max-h-full object-contain shadow-2xl"></canvas>
+                </div>
+
+                <!-- Transport Controls -->
+                <div class="h-10 bg-neutral-900 border-t border-nle-border flex items-center justify-between px-4">
+                    <div class="flex items-center space-x-2">
+                        <button onclick="stepFrame(-1)" class="w-7 h-7 rounded hover:bg-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center">
+                            <i class="fa-solid fa-backward-step text-xs"></i>
+                        </button>
+                        <button id="btn-play-pause" onclick="togglePlayback()" class="w-8 h-8 rounded bg-nle-accent hover:bg-nle-accentHover text-white flex items-center justify-center">
+                            <i id="play-icon" class="fa-solid fa-play text-xs"></i>
+                        </button>
+                        <button onclick="stepFrame(1)" class="w-7 h-7 rounded hover:bg-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center">
+                            <i class="fa-solid fa-forward-step text-xs"></i>
+                        </button>
+                        <button id="btn-loop" onclick="toggleLoop()" class="w-7 h-7 rounded hover:bg-neutral-800 text-neutral-400 text-white flex items-center justify-center">
+                            <i class="fa-solid fa-repeat text-xs"></i>
+                        </button>
+                    </div>
+
+                    <!-- Scrubber Bar -->
+                    <div class="flex-1 max-w-md mx-6 flex items-center space-x-2">
+                        <span class="text-[10px] font-mono text-neutral-500">IN</span>
+                        <input type="range" id="transport-scrubber" min="0" max="100" value="0" step="0.1" oninput="scrubFromTransport(this.value)" class="w-full h-1 bg-neutral-800 rounded appearance-none cursor-pointer">
+                        <span class="text-[10px] font-mono text-neutral-500">OUT</span>
+                    </div>
+
+                    <button onclick="toggleFullscreen()" class="w-7 h-7 rounded hover:bg-neutral-800 text-neutral-400 hover:text-white flex items-center justify-center">
+                        <i class="fa-solid fa-expand text-xs"></i>
+                    </button>
+                </div>
+
+            </section>
+
+            <!-- TOUCHPAD EFFECT DRAG PALETTE -->
+            <section class="h-14 bg-nle-panel border border-nle-border rounded flex items-center px-2 space-x-2 overflow-x-auto shrink-0">
+                <span class="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-wider shrink-0 px-1"><i class="fa-solid fa-wand-magic-sparkles text-purple-400 mr-1"></i>Touch Effect Bin:</span>
+                
+                <!-- Draggable Effect Cards for Touchpad -->
+                <div class="flex items-center space-x-1.5 shrink-0">
+                    <div draggable="true" ondragstart="onEffectDragStart(event, 'Chroma Key')" class="px-2.5 py-1 bg-purple-900/60 hover:bg-purple-800 border border-purple-500/50 rounded text-purple-200 text-[11px] font-mono cursor-grab active:cursor-grabbing flex items-center space-x-1">
+                        <i class="fa-solid fa-mask text-[10px]"></i><span>Chroma Key</span>
+                    </div>
+                    <div draggable="true" ondragstart="onEffectDragStart(event, 'Stabilizer')" class="px-2.5 py-1 bg-blue-900/60 hover:bg-blue-800 border border-blue-500/50 rounded text-blue-200 text-[11px] font-mono cursor-grab active:cursor-grabbing flex items-center space-x-1">
+                        <i class="fa-solid fa-video-slash text-[10px]"></i><span>Stabilizer</span>
+                    </div>
+                    <div draggable="true" ondragstart="onEffectDragStart(event, 'Speed 2x')" class="px-2.5 py-1 bg-emerald-900/60 hover:bg-emerald-800 border border-emerald-500/50 rounded text-emerald-200 text-[11px] font-mono cursor-grab active:cursor-grabbing flex items-center space-x-1">
+                        <i class="fa-solid fa-gauge-high text-[10px]"></i><span>Speed 2.0x</span>
+                    </div>
+                    <div draggable="true" ondragstart="onEffectDragStart(event, 'SlowMo 0.5x')" class="px-2.5 py-1 bg-amber-900/60 hover:bg-amber-800 border border-amber-500/50 rounded text-amber-200 text-[11px] font-mono cursor-grab active:cursor-grabbing flex items-center space-x-1">
+                        <i class="fa-solid fa-gauge text-[10px]"></i><span>SlowMo 0.5x</span>
+                    </div>
+                    <div draggable="true" ondragstart="onEffectDragStart(event, 'Fade Entrance')" class="px-2.5 py-1 bg-pink-900/60 hover:bg-pink-800 border border-pink-500/50 rounded text-pink-200 text-[11px] font-mono cursor-grab active:cursor-grabbing flex items-center space-x-1">
+                        <i class="fa-solid fa-circle-fade text-[10px]"></i><span>Fade In</span>
+                    </div>
+                    <div draggable="true" ondragstart="onEffectDragStart(event, 'Teal & Orange')" class="px-2.5 py-1 bg-cyan-900/60 hover:bg-cyan-800 border border-cyan-500/50 rounded text-cyan-200 text-[11px] font-mono cursor-grab active:cursor-grabbing flex items-center space-x-1">
+                        <i class="fa-solid fa-palette text-[10px]"></i><span>Teal & Orange</span>
+                    </div>
+                    <div draggable="true" ondragstart="onEffectDragStart(event, 'Mute Audio')" class="px-2.5 py-1 bg-red-900/60 hover:bg-red-800 border border-red-500/50 rounded text-red-200 text-[11px] font-mono cursor-grab active:cursor-grabbing flex items-center space-x-1">
+                        <i class="fa-solid fa-volume-xmark text-[10px]"></i><span>Mute Clip</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MULTI-TRACK NLE TIMELINE -->
+            <section class="h-64 bg-nle-panel rounded border border-nle-border flex flex-col overflow-hidden shrink-0">
+                
+                <!-- Timeline Toolbar -->
+                <div class="h-8 bg-neutral-900 border-b border-nle-border flex items-center justify-between px-3 text-xs">
                     <div class="flex items-center space-x-3">
-                        <span class="font-bold text-white"><i class="fa-solid fa-timeline text-blue-400 mr-1.5"></i> Timeline Sequence</span>
-                        <div class="h-3 w-[1px] bg-premiere-border"></div>
-                        <button onclick="alert('Razor split executed')" class="bg-premiere-border hover:bg-premiere-active px-2 py-0.5 rounded text-white text-[11px]"><i class="fa-solid fa-scissors mr-1"></i>Razor Split</button>
-                        <button onclick="addTrack('video')" class="bg-premiere-border hover:bg-premiere-active px-2 py-0.5 rounded text-white text-[11px]"><i class="fa-solid fa-plus mr-1"></i>Track V</button>
-                        <button onclick="addTrack('audio')" class="bg-premiere-border hover:bg-premiere-active px-2 py-0.5 rounded text-white text-[11px]"><i class="fa-solid fa-plus mr-1"></i>Track A</button>
+                        <span class="font-semibold text-neutral-300"><i class="fa-solid fa-film text-blue-400 mr-1.5"></i>Timeline Sequence</span>
+                        <div class="flex items-center space-x-1 bg-neutral-950 p-0.5 rounded border border-neutral-800">
+                            <button onclick="razorSplitAtPlayhead()" class="px-2 h-5 rounded bg-neutral-800 hover:bg-neutral-700 text-white text-[10px] font-mono flex items-center space-x-1">
+                                <i class="fa-solid fa-scissors text-amber-400"></i><span>Razor Split</span>
+                            </button>
+                            <button onclick="addTrack('video')" class="px-2 h-5 rounded bg-purple-900/60 hover:bg-purple-800 text-purple-200 text-[10px] font-mono">+ Track V</button>
+                            <button onclick="addTrack('audio')" class="px-2 h-5 rounded bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 text-[10px] font-mono">+ Track A</button>
+                        </div>
                     </div>
-                    <span class="font-mono text-[10px] text-blue-400">00:01</span>
+
+                    <div class="flex items-center space-x-2 text-[11px] font-mono text-neutral-400">
+                        <span>Zoom:</span>
+                        <button onclick="zoomTimeline(0.8)" class="px-1 hover:text-white">-</button>
+                        <span id="zoom-val" class="text-neutral-200">100%</span>
+                        <button onclick="zoomTimeline(1.2)" class="px-1 hover:text-white">+</button>
+                    </div>
                 </div>
 
-                <!-- Tracks Container -->
-                <div class="p-2 space-y-1 bg-[#181818]" oncontextmenu="openContextMenu(event)">
-                    <!-- V3 Track -->
-                    <div class="flex items-center bg-premiere-dark border border-premiere-border rounded h-9 relative">
-                        <div class="w-28 bg-premiere-panel px-2 border-r border-premiere-border text-[10px] font-bold text-white flex items-center">V3 - Actor Layer</div>
-                        <div class="flex-1 relative px-2">
-                            <div class="absolute h-6 bg-purple-600/40 border border-purple-400 rounded px-2 flex items-center justify-between text-[10px] text-white" style="left: 20px; width: 220px;">
-                                <span>ACTOR_02_Villain.png [Chroma Key]</span>
-                            </div>
-                        </div>
+                <!-- Tracks Layout Container -->
+                <div class="flex-1 flex overflow-hidden relative">
+                    
+                    <!-- Track Headers Sidebar -->
+                    <div id="track-headers-sidebar" class="w-32 bg-neutral-900 border-r border-nle-border flex flex-col shrink-0 text-[10px] font-mono select-none overflow-y-auto">
+                        <!-- Populated dynamically -->
                     </div>
-                    <!-- V2 Track -->
-                    <div class="flex items-center bg-premiere-dark border border-premiere-border rounded h-9 relative">
-                        <div class="w-28 bg-premiere-panel px-2 border-r border-premiere-border text-[10px] font-bold text-white flex items-center">V2 - Actor Layer</div>
-                        <div class="flex-1 relative px-2">
-                            <div class="absolute h-6 bg-blue-600/40 border border-blue-400 rounded px-2 flex items-center justify-between text-[10px] text-white" style="left: 60px; width: 260px;">
-                                <span>ACTOR_01_Hero.png [Chroma Key]</span>
-                            </div>
+
+                    <!-- Timeline Canvas & Tracks Workspace -->
+                    <div id="timeline-area" class="flex-1 bg-neutral-950 relative overflow-x-auto overflow-y-hidden cursor-pointer" onclick="scrubTimelineFromClick(event)">
+                        
+                        <!-- Ruler -->
+                        <div class="h-6 bg-neutral-900 border-b border-nle-border flex items-center font-mono text-[9px] text-neutral-500 relative select-none">
+                            <div class="absolute left-2">00:00</div>
+                            <div class="absolute left-1/4">00:01</div>
+                            <div class="absolute left-2/4">00:02</div>
+                            <div class="absolute left-3/4">00:03</div>
+                            <div class="absolute right-2">00:05</div>
                         </div>
-                    </div>
-                    <!-- V1 Track -->
-                    <div class="flex items-center bg-premiere-dark border border-premiere-border rounded h-9 relative">
-                        <div class="w-28 bg-premiere-panel px-2 border-r border-premiere-border text-[10px] font-bold text-white flex items-center">V1 - Backgrounds</div>
-                        <div class="flex-1 relative px-2">
-                            <div class="absolute h-6 bg-emerald-600/40 border border-emerald-400 rounded px-2 flex items-center justify-between text-[10px] text-white" style="left: 0px; width: 340px;">
-                                <span>BG_01: Cyberpunk_Neon_City.jpg</span>
+
+                        <!-- Tracks Lanes Viewport -->
+                        <div id="tracks-viewport" class="relative w-full h-[calc(100%-24px)] transition-transform duration-150 origin-left">
+                            
+                            <!-- Dynamic Track Lanes Rendered Here -->
+
+                            <!-- Playhead Needle -->
+                            <div id="playhead" class="absolute top-0 bottom-0 w-0.5 bg-nle-accent z-30 pointer-events-none" style="left: 0%;">
+                                <div class="playhead-head -ml-[6.5px] -mt-[6px]"></div>
                             </div>
+
                         </div>
+
                     </div>
-                    <!-- A1 Track -->
-                    <div class="flex items-center bg-premiere-dark border border-premiere-border rounded h-9 relative">
-                        <div class="w-28 bg-premiere-panel px-2 border-r border-premiere-border text-[10px] font-bold text-white flex items-center">A1 - Voiceover</div>
-                        <div class="flex-1 relative px-2">
-                            <div class="absolute h-6 bg-amber-600/40 border border-amber-400 rounded px-2 flex items-center justify-between text-[10px] text-white" style="left: 10px; width: 300px;">
-                                <span>SOUND_01: Dialogue_Hero_A1.wav</span>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
+
+            </section>
+
+        </main>
+    </div>
+
+    <!-- PREMIERE-STYLE RIGHT-CLICK CONTEXT MENU -->
+    <div id="context-menu" class="hidden fixed bg-neutral-900 border border-nle-border rounded shadow-2xl z-50 w-52 py-1 flex flex-col divide-y divide-neutral-800">
+        <div class="px-3 py-1 font-mono text-[10px] text-neutral-400 bg-neutral-950 flex items-center justify-between">
+            <span id="context-clip-title">CLIP OPTIONS</span>
+            <i class="fa-solid fa-sliders text-blue-400"></i>
+        </div>
+        
+        <div>
+            <div onclick="contextAction('split')" class="context-menu-item">
+                <span><i class="fa-solid fa-scissors mr-2 text-amber-400"></i>Razor Split Clip</span>
+                <span class="font-mono text-[9px] text-neutral-500">C</span>
+            </div>
+            <div onclick="contextAction('duplicate')" class="context-menu-item">
+                <span><i class="fa-solid fa-copy mr-2 text-blue-400"></i>Duplicate Clip</span>
+                <span class="font-mono text-[9px] text-neutral-500">Ctrl+D</span>
             </div>
         </div>
 
-    </div>
+        <div>
+            <div onclick="contextAction('chroma')" class="context-menu-item">
+                <span><i class="fa-solid fa-mask mr-2 text-purple-400"></i>Toggle Chroma Key</span>
+                <i class="fa-solid fa-check text-[10px] text-emerald-400"></i>
+            </div>
+            <div onclick="contextAction('stabilizer')" class="context-menu-item">
+                <span><i class="fa-solid fa-video-slash mr-2 text-cyan-400"></i>Apply Stabilizer</span>
+            </div>
+            <div onclick="contextAction('mute')" class="context-menu-item">
+                <span><i class="fa-solid fa-volume-xmark mr-2 text-red-400"></i>Mute / Unmute Audio</span>
+            </div>
+        </div>
 
-    <!-- Right-Click Context Menu -->
-    <div id="customContextMenu" class="hidden absolute z-50 bg-premiere-panel border border-premiere-border rounded shadow-2xl py-1.5 w-56 text-xs text-white">
-        <div class="px-3 py-1.5 hover:bg-purple-600 cursor-pointer flex items-center space-x-2" onclick="contextAction('Edit Prompts')"><i class="fa-solid fa-pen text-blue-300"></i><span>Edit Prompt Settings</span></div>
-        <div class="px-3 py-1.5 hover:bg-purple-600 cursor-pointer flex items-center space-x-2" onclick="contextAction('Chroma Key')"><i class="fa-solid fa-circle-half-stroke text-emerald-300"></i><span>Toggle Chroma Key</span></div>
-        <div class="px-3 py-1.5 hover:bg-purple-600 cursor-pointer flex items-center space-x-2" onclick="contextAction('Stabilizer')"><i class="fa-solid fa-video text-purple-300"></i><span>Toggle Stabilizer</span></div>
-        <div class="border-t border-premiere-border my-1"></div>
-        <div class="px-3 py-1.5 hover:bg-red-600 cursor-pointer flex items-center space-x-2 text-red-300" onclick="contextAction('Delete')"><i class="fa-solid fa-trash"></i><span>Delete Item</span></div>
-    </div>
+        <div>
+            <div onclick="contextAction('speed_2')" class="context-menu-item">
+                <span><i class="fa-solid fa-gauge-high mr-2 text-emerald-400"></i>Speed: 2.0x Fast</span>
+            </div>
+            <div onclick="contextAction('speed_05')" class="context-menu-item">
+                <span><i class="fa-solid fa-gauge mr-2 text-amber-400"></i>Speed: 0.5x SlowMo</span>
+            </div>
+        </div>
 
-    <!-- Export Modal -->
-    <div id="exportModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-premiere-dark border border-premiere-border rounded-lg max-w-md w-full p-6 space-y-4 shadow-2xl">
-            <h3 class="text-base font-bold text-white flex items-center"><i class="fa-solid fa-cloud-arrow-up text-purple-500 mr-2"></i> Export Film Scene</h3>
-            <p class="text-xs text-gray-400">Ready for deployment under GitHub (`kellymshema.github.io/filmproduction/`).</p>
-            <div class="flex justify-end space-x-3 pt-4 border-t border-premiere-border">
-                <button onclick="closeExportModal()" class="px-4 py-2 bg-premiere-border rounded text-white text-xs">Cancel</button>
-                <button onclick="executeExport()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded text-white text-xs font-medium">Download Package</button>
+        <div>
+            <div onclick="contextAction('filter_teal')" class="context-menu-item">
+                <span><i class="fa-solid fa-palette mr-2 text-cyan-400"></i>Filter: Teal & Orange</span>
+            </div>
+            <div onclick="contextAction('filter_noir')" class="context-menu-item">
+                <span><i class="fa-solid fa-film mr-2 text-neutral-400"></i>Filter: Film Noir</span>
+            </div>
+        </div>
+
+        <div>
+            <div onclick="contextAction('delete')" class="context-menu-item text-red-400 hover:bg-red-950">
+                <span><i class="fa-solid fa-trash mr-2"></i>Delete Clip</span>
+                <span class="font-mono text-[9px]">Del</span>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript Application Logic -->
+    <!-- EXPORT MODAL -->
+    <div id="export-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-nle-panel border border-nle-border rounded-lg max-w-lg w-full p-5 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-nle-border pb-3">
+                <h3 class="text-sm font-bold text-white flex items-center">
+                    <i class="fa-solid fa-file-export text-nle-accent mr-2"></i> Export Sequence & SQL Payload
+                </h3>
+                <button onclick="closeExportModal()" class="text-neutral-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="text-neutral-400 block mb-1">Sequence Title</label>
+                    <input type="text" id="export-seq-name" value="Scene_01_MultiActor_Production" class="w-full bg-neutral-900 border border-nle-border rounded p-2 text-white font-mono">
+                </div>
+
+                <div class="bg-neutral-900 p-3 rounded border border-nle-border space-y-1.5">
+                    <div class="text-[11px] font-semibold text-neutral-300">Generated SQL Payload (schema.sql Aligned)</div>
+                    <textarea id="sql-payload" rows="5" class="w-full font-mono text-[10px] text-emerald-400 bg-neutral-950 p-2 rounded border border-neutral-800 focus:outline-none" readonly></textarea>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end space-x-2 border-t border-nle-border pt-3">
+                <button onclick="closeExportModal()" class="px-3 py-1.5 rounded bg-neutral-800 text-xs text-white">Cancel</button>
+                <button onclick="copyPayload()" class="px-4 py-1.5 rounded bg-nle-accent hover:bg-nle-accentHover text-xs font-semibold text-white flex items-center space-x-1.5">
+                    <i class="fa-solid fa-copy"></i>
+                    <span>Copy SQL Payload</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT NLE ENGINE & RIGHT-CLICK CONTEXT LOGIC -->
     <script>
-        let currentLang = 'en';
+        // Dynamic Actor Profiles (Mapped by Actor ID)
+        let actorProfiles = [
+            { id: 'ACTOR_01', name: 'Hero Operative', img: new Image(), scale: 100, posX: -120, posY: 0, keying: true, light: 100, prompt: 'Dramatic hero in tactical gear looking through rain storm', dialogue: 'We only have one shot at this.' },
+            { id: 'ACTOR_02', name: 'Co-Star Villain', img: new Image(), scale: 90, posX: 120, posY: 0, keying: true, light: 90, prompt: 'Antagonist stepping out of shadows with glowing visor', dialogue: 'You arrive right on schedule.' },
+            { id: 'ACTOR_03', name: 'Cyber Specialist', img: new Image(), scale: 85, posX: 0, posY: 50, keying: true, light: 110, prompt: 'Tech expert typing on holographic terminal overlay', dialogue: 'Mainframe bypass in three seconds.' }
+        ];
 
-        // Asset Prompts Database state
-        const assetDatabase = {
-            'ACTOR_01': { type: 'Actor', title: 'ACTOR_01: Hero Operative', en: 'Cinematic portrait of a Rwandan tech hero in neon studio lighting', rw: 'Umugabo w\'intwari ukora muri tekinoloji' },
-            'ACTOR_02': { type: 'Actor', title: 'ACTOR_02: Cyber Villain', en: 'Cyberpunk antagonist watching from neon shadows', rw: 'Umuntu w\'umwanzi ureba mu icuraburindi' },
-            'BG_01': { type: 'Background', title: 'BG_01: Cyberpunk Neon City', en: 'Futuristic Kigali skyline at night with holographic billboards and rain', rw: 'Umujyi wa Kigali w\'ejo hazaza nijoro n\'amatara y\'ubwoko bwose' },
-            'SOUND_01': { type: 'Sound', title: 'SOUND_01: Voiceover Kinyarwanda', en: 'Clear voiceover dialogue introducing the digital mission', rw: 'Ijwi ryerekana gahunda nshya ya digital' }
+        let activeActorIndex = 0;
+
+        // Dynamic Multi-Background Asset Library
+        let backgroundLibrary = [
+            { id: 'bg1', title: 'Cyberpunk Neon City', url: '', type: 'image' },
+            { id: 'bg2', title: 'Sci-Fi Space Bridge', url: '', type: 'image' },
+            { id: 'bg3', title: 'Sunset Peak Mountain', url: '', type: 'image' },
+            { id: 'bg4', title: 'Film Studio Virtual LED Stage', url: '', type: 'image' }
+        ];
+        let activeBgIndex = 0;
+        const activeBgImg = new Image();
+
+        // Multi-Track Sequence Architecture
+        let tracks = [
+            { id: 'V3', type: 'video', name: 'V3 Actor Layer 2', mute: false, locked: false, color: 'bg-purple-900/80 border-purple-500' },
+            { id: 'V2', type: 'video', name: 'V2 Actor Layer 1', mute: false, locked: false, color: 'bg-indigo-900/80 border-indigo-500' },
+            { id: 'V1', type: 'video', name: 'V1 Background Plate', mute: false, locked: false, color: 'bg-blue-900/80 border-blue-500' },
+            { id: 'A1', type: 'audio', name: 'A1 Voiceover / Dialogue', mute: false, locked: false, color: 'bg-emerald-900/80 border-emerald-500', vol: 85, pan: 0 },
+            { id: 'A2', type: 'audio', name: 'A2 Background Music', mute: false, locked: false, color: 'bg-amber-900/80 border-amber-500', vol: 60, pan: -20 },
+            { id: 'A3', type: 'audio', name: 'A3 Sound Effects (SFX)', mute: false, locked: false, color: 'bg-teal-900/80 border-teal-500', vol: 75, pan: 20 },
+            { id: 'A4', type: 'audio', name: 'A4 Atmosphere Foley', mute: false, locked: false, color: 'bg-cyan-900/80 border-cyan-500', vol: 50, pan: 0 }
+        ];
+
+        let clips = [
+            { id: 'c1', trackId: 'V3', name: 'ACTOR_02_Villain.png', startPct: 25, widthPct: 60, fx: ['Chroma Key'] },
+            { id: 'c2', trackId: 'V2', name: 'ACTOR_01_Hero.png', startPct: 5, widthPct: 85, fx: ['Chroma Key', 'Teal & Orange'] },
+            { id: 'c3', trackId: 'V1', name: 'Cyberpunk_Neon_City.jpg', startPct: 0, widthPct: 98, fx: [] },
+            { id: 'c4', trackId: 'A1', name: 'Dialogue_Hero_A1.wav', startPct: 10, widthPct: 70, fx: [] },
+            { id: 'c5', trackId: 'A2', name: 'Cinematic_Score_BGM.mp3', startPct: 0, widthPct: 98, fx: [] },
+            { id: 'c6', trackId: 'A3', name: 'Rain_Thunder_SFX.wav', startPct: 15, widthPct: 75, fx: [] }
+        ];
+
+        // Global State
+        let isPlaying = false;
+        let isLooping = true;
+        let playheadPosition = 0;
+        let playbackInterval = null;
+        let cameraMotion = 'pan';
+        let blurAmount = 3;
+        let timelineZoomLevel = 1.0;
+        let draggedEffectName = null;
+        let selectedClipForContext = null;
+
+        let mainCanvas, mainCtx;
+
+        window.onload = function() {
+            mainCanvas = document.getElementById('main-program-canvas');
+            mainCtx = mainCanvas.getContext('2d');
+            mainCanvas.width = 1280;
+            mainCanvas.height = 720;
+
+            loadDefaultSVGs();
+            renderActorSelectDropdown();
+            renderActorPromptsUI();
+            renderBackgroundLibraryUI();
+            renderAudioConsoleUI();
+            renderTimelineUI();
+
+            window.addEventListener('keydown', (e) => {
+                if (e.code === 'Space' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT') {
+                    e.preventDefault();
+                    togglePlayback();
+                }
+            });
+
+            requestAnimationFrame(renderLoop);
         };
 
-        function selectActiveAsset(assetId) {
-            const data = assetDatabase[assetId];
-            if(data) {
-                document.getElementById('editorAssetTitle').innerText = data.title;
-                document.getElementById('editorAssetType').innerText = data.type;
-                document.getElementById('promptEnInput').value = data.en;
-                document.getElementById('promptRwInput').value = data.rw;
-            }
-        }
-
-        function saveAssetPrompts() {
-            const activeId = document.getElementById('activeAssetSelect').value;
-            if(assetDatabase[activeId]) {
-                assetDatabase[activeId].en = document.getElementById('promptEnInput').value;
-                assetDatabase[activeId].rw = document.getElementById('promptRwInput').value;
-                alert(`Successfully saved prompts and settings for ${activeId}!`);
-            }
-        }
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'kin' : 'en';
-            document.getElementById('langLabel').innerText = currentLang === 'en' ? 'EN / KIN' : 'KIN (Kinyarwanda)';
-        }
-
-        window.addEventListener('contextmenu', (e) => {
+        // Right-Click Context Menu Logic
+        function showContextMenu(e, clipId) {
             e.preventDefault();
-            const menu = document.getElementById('customContextMenu');
-            menu.style.top = `${e.clientY}px`;
-            menu.style.left = `${e.clientX}px`;
+            e.stopPropagation();
+            selectedClipForContext = clips.find(c => c.id === clipId);
+
+            const menu = document.getElementById('context-menu');
+            document.getElementById('context-clip-title').innerText = selectedClipForContext ? selectedClipForContext.name.toUpperCase() : 'CLIP OPTIONS';
+
+            let posX = e.clientX;
+            let posY = e.clientY;
+
+            // Boundary check
+            if (posX + 210 > window.innerWidth) posX = window.innerWidth - 220;
+            if (posY + 250 > window.innerHeight) posY = window.innerHeight - 260;
+
+            menu.style.left = posX + 'px';
+            menu.style.top = posY + 'px';
             menu.classList.remove('hidden');
-        });
-
-        window.addEventListener('click', () => {
-            document.getElementById('customContextMenu').classList.add('hidden');
-        });
-
-        function contextAction(action) {
-            alert(`Executed action: ${action}`);
         }
 
-        function applyEffect(effectName) {
-            alert(`Applied touch effect: ${effectName}`);
+        function hideContextMenu() {
+            document.getElementById('context-menu').classList.add('hidden');
         }
 
-        const canvas = document.getElementById('programCanvas');
-        const ctx = canvas.getContext('2d');
-        function renderCanvas() {
-            ctx.fillStyle = '#0f0f11';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#10b981';
-            ctx.fillRect(180, 30, 240, 120);
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '11px sans-serif';
-            ctx.fillText('ACTOR_01 (Prompt Mapped)', 190, 20);
-            requestAnimationFrame(renderCanvas);
-        }
-        renderCanvas();
+        function contextAction(actionType) {
+            if (!selectedClipForContext) return;
 
-        function openExportModal() { document.getElementById('exportModal').classList.remove('hidden'); }
-        function closeExportModal() { document.getElementById('exportModal').classList.add('hidden'); }
-        function executeExport() { alert('Project scene successfully packaged for GitHub Pages!'); closeExportModal(); }
-        function addNewAssetPrompt() { alert('New prompt asset slot created!'); }
-        function addTrack(type) { alert(`New track ${type} added successfully!`); }
+            if (actionType === 'split') {
+                razorSplitAtPlayhead();
+            } else if (actionType === 'duplicate') {
+                const dup = JSON.parse(JSON.stringify(selectedClipForContext));
+                dup.id = 'c_' + Date.now();
+                dup.startPct = Math.min(85, dup.startPct + 10);
+                clips.push(dup);
+                renderTimelineUI();
+            } else if (actionType === 'chroma') {
+                const idx = selectedClipForContext.fx.indexOf('Chroma Key');
+                if (idx > -1) selectedClipForContext.fx.splice(idx, 1);
+                else selectedClipForContext.fx.push('Chroma Key');
+                renderTimelineUI();
+            } else if (actionType === 'stabilizer') {
+                if (!selectedClipForContext.fx.includes('Stabilizer')) {
+                    selectedClipForContext.fx.push('Stabilizer');
+                    renderTimelineUI();
+                }
+            } else if (actionType === 'mute') {
+                if (!selectedClipForContext.fx.includes('Mute Audio')) {
+                    selectedClipForContext.fx.push('Mute Audio');
+                } else {
+                    const idx = selectedClipForContext.fx.indexOf('Mute Audio');
+                    selectedClipForContext.fx.splice(idx, 1);
+                }
+                renderTimelineUI();
+            } else if (actionType === 'speed_2') {
+                selectedClipForContext.widthPct = Math.max(10, selectedClipForContext.widthPct / 2);
+                if (!selectedClipForContext.fx.includes('Speed 2x')) selectedClipForContext.fx.push('Speed 2x');
+                renderTimelineUI();
+            } else if (actionType === 'speed_05') {
+                selectedClipForContext.widthPct = Math.min(95, selectedClipForContext.widthPct * 1.5);
+                if (!selectedClipForContext.fx.includes('SlowMo 0.5x')) selectedClipForContext.fx.push('SlowMo 0.5x');
+                renderTimelineUI();
+            } else if (actionType === 'filter_teal') {
+                if (!selectedClipForContext.fx.includes('Teal & Orange')) selectedClipForContext.fx.push('Teal & Orange');
+                renderTimelineUI();
+            } else if (actionType === 'filter_noir') {
+                if (!selectedClipForContext.fx.includes('Film Noir')) selectedClipForContext.fx.push('Film Noir');
+                renderTimelineUI();
+            } else if (actionType === 'delete') {
+                clips = clips.filter(c => c.id !== selectedClipForContext.id);
+                renderTimelineUI();
+            }
+
+            hideContextMenu();
+        }
+
+        // Initialize SVGs
+        function loadDefaultSVGs() {
+            const svg1 = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800"><rect width="600" height="800" fill="#00ff00"/><circle cx="300" cy="240" r="70" fill="#e0a96d"/><path d="M200 800 L240 400 L300 350 L360 400 L400 800 Z" fill="#1e293b"/><text x="300" y="100" font-family="sans-serif" font-weight="bold" font-size="28" fill="#ffffff" text-anchor="middle">ACTOR 01 (HERO)</text></svg>`;
+            const svg2 = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800"><rect width="600" height="800" fill="#00ff00"/><circle cx="300" cy="240" r="75" fill="#c58c5c"/><path d="M180 800 L230 380 L300 340 L370 380 L420 800 Z" fill="#0284c7"/><text x="300" y="100" font-family="sans-serif" font-weight="bold" font-size="28" fill="#ffffff" text-anchor="middle">ACTOR 02 (VILLAIN)</text></svg>`;
+            const svg3 = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800"><rect width="600" height="800" fill="#00ff00"/><circle cx="300" cy="240" r="65" fill="#9a6949"/><path d="M190 800 L240 390 L300 350 L360 390 L410 800 Z" fill="#0f766e"/><text x="300" y="100" font-family="sans-serif" font-weight="bold" font-size="28" fill="#ffffff" text-anchor="middle">ACTOR 03 (TECH)</text></svg>`;
+
+            actorProfiles[0].img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg1);
+            actorProfiles[1].img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg2);
+            actorProfiles[2].img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg3);
+
+            loadBgPreset('bg1');
+        }
+
+        function renderActorSelectDropdown() {
+            const select = document.getElementById('actor-select');
+            select.innerHTML = '';
+            actorProfiles.forEach((act, idx) => {
+                const opt = document.createElement('option');
+                opt.value = idx;
+                opt.innerText = `${act.id}: ${act.name}`;
+                select.appendChild(opt);
+            });
+            select.value = activeActorIndex;
+            updateActorInspectorFields();
+        }
+
+        function selectActorLayer(index) {
+            activeActorIndex = parseInt(index);
+            updateActorInspectorFields();
+        }
+
+        function updateActorInspectorFields() {
+            const act = actorProfiles[activeActorIndex];
+            document.getElementById('active-actor-id-tag').innerText = act.id;
+            document.getElementById('active-actor-name-input').value = act.name;
+            document.getElementById('slider-actor-scale').value = act.scale;
+            document.getElementById('val-actor-scale').innerText = act.scale + '%';
+            document.getElementById('slider-actor-x').value = act.posX;
+            document.getElementById('val-actor-x').innerText = act.posX;
+            document.getElementById('slider-actor-y').value = act.posY;
+            document.getElementById('val-actor-y').innerText = act.posY;
+            document.getElementById('fx-keying-toggle').checked = act.keying;
+            document.getElementById('slider-light').value = act.light;
+            document.getElementById('val-light').innerText = act.light + '%';
+        }
+
+        function updateActorName(val) {
+            actorProfiles[activeActorIndex].name = val;
+            renderActorSelectDropdown();
+            renderActorPromptsUI();
+        }
+
+        function addActorProfile() {
+            const newCount = actorProfiles.length + 1;
+            const newId = `ACTOR_0${newCount}`;
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800"><rect width="600" height="800" fill="#00ff00"/><circle cx="300" cy="240" r="70" fill="#d8a47f"/><path d="M200 800 L240 400 L300 350 L360 400 L400 800 Z" fill="#334155"/><text x="300" y="100" font-family="sans-serif" font-weight="bold" font-size="28" fill="#ffffff" text-anchor="middle">${newId}</text></svg>`;
+            
+            const newImg = new Image();
+            newImg.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+
+            actorProfiles.push({
+                id: newId,
+                name: `Actor Character ${newCount}`,
+                img: newImg,
+                scale: 100,
+                posX: 0,
+                posY: 0,
+                keying: true,
+                light: 100,
+                prompt: `Cinematic dramatic performance by ${newId}`,
+                dialogue: `Standing by for sequence.`
+            });
+
+            activeActorIndex = actorProfiles.length - 1;
+            renderActorSelectDropdown();
+            renderActorPromptsUI();
+        }
+
+        function renderActorPromptsUI() {
+            const container = document.getElementById('actor-prompts-container');
+            container.innerHTML = '';
+
+            actorProfiles.forEach((act, idx) => {
+                const card = document.createElement('div');
+                card.className = "bg-neutral-900 p-2.5 rounded border border-nle-border space-y-2";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-mono font-bold text-purple-300">${act.id}</span>
+                        <span class="text-[10px] text-neutral-400 font-medium">${act.name}</span>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-neutral-400 block mb-0.5">Scene Prompt Direction</label>
+                        <textarea onchange="updateActorPrompt(${idx}, 'prompt', this.value)" rows="2" class="w-full bg-neutral-950 border border-nle-border text-[11px] rounded p-1.5 text-neutral-200 focus:outline-none focus:border-nle-accent">${act.prompt}</textarea>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-emerald-400 block mb-0.5">Character Dialogue / Audio Line</label>
+                        <input type="text" value="${act.dialogue}" onchange="updateActorPrompt(${idx}, 'dialogue', this.value)" class="w-full bg-neutral-950 border border-nle-border text-[11px] rounded p-1 text-emerald-300 font-mono">
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function updateActorPrompt(index, field, val) {
+            actorProfiles[index][field] = val;
+        }
+
+        function renderBackgroundLibraryUI() {
+            const grid = document.getElementById('bg-library-grid');
+            grid.innerHTML = '';
+
+            backgroundLibrary.forEach((bg, idx) => {
+                const item = document.createElement('div');
+                item.className = `p-2 rounded border cursor-pointer text-center space-y-1 ${activeBgIndex === idx ? 'bg-blue-950/60 border-blue-500' : 'bg-neutral-900 border-nle-border hover:bg-neutral-800'}`;
+                item.onclick = () => selectBgPreset(idx);
+                item.innerHTML = `
+                    <div class="h-12 bg-neutral-950 rounded flex items-center justify-center border border-neutral-800 text-blue-400">
+                        <i class="fa-solid fa-image text-lg"></i>
+                    </div>
+                    <div class="text-[10px] font-medium text-neutral-200 truncate">${bg.title}</div>
+                `;
+                grid.appendChild(item);
+            });
+        }
+
+        function selectBgPreset(idx) {
+            activeBgIndex = idx;
+            renderBackgroundLibraryUI();
+            loadBgPreset(backgroundLibrary[idx].id);
+        }
+
+        function loadBgPreset(type) {
+            let svgStr = '';
+            if (type === 'bg1') {
+                svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#090912"/><rect x="100" y="200" width="150" height="520" fill="#1e1b4b"/><rect x="300" y="100" width="220" height="620" fill="#311042"/><rect x="600" y="250" width="180" height="470" fill="#0f172a"/><circle cx="400" cy="300" r="80" fill="#ec4899" opacity="0.6"/><text x="640" y="80" font-family="sans-serif" font-weight="bold" font-size="32" fill="#ec4899" text-anchor="middle">CYBERPUNK NEON CITY</text></svg>`;
+            } else if (type === 'bg2') {
+                svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#0284c7"/><circle cx="640" cy="360" r="260" fill="#1e293b"/><text x="640" y="370" font-family="sans-serif" font-weight="bold" font-size="32" fill="#38bdf8" text-anchor="middle">SPACESHIP CONTROL BRIDGE</text></svg>`;
+            } else if (type === 'bg3') {
+                svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#431407"/></linearGradient><rect width="1280" height="720" fill="url(#g)"/><polygon points="0,720 300,400 600,720" fill="#292524"/><text x="640" y="120" font-family="sans-serif" font-weight="bold" font-size="32" fill="#ffedd5" text-anchor="middle">SUNSET MOUNTAIN PEAK</text></svg>`;
+            } else {
+                svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720"><rect width="1280" height="720" fill="#18181b"/><circle cx="200" cy="150" r="80" fill="#e4e4e7" opacity="0.2"/><circle cx="1080" cy="150" r="80" fill="#e4e4e7" opacity="0.2"/><text x="640" y="360" font-family="sans-serif" font-weight="bold" font-size="32" fill="#71717a" text-anchor="middle">VIRTUAL LED STAGE</text></svg>`;
+            }
+            activeBgImg.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svgStr);
+        }
+
+        function renderAudioConsoleUI() {
+            const container = document.getElementById('audio-faders-container');
+            container.innerHTML = '';
+
+            tracks.filter(t => t.type === 'audio').forEach((track) => {
+                const fader = document.createElement('div');
+                fader.className = "bg-neutral-900 p-2.5 rounded border border-nle-border space-y-2";
+                fader.innerHTML = `
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-medium text-emerald-300">${track.id}: ${track.name}</span>
+                        <button onclick="toggleTrackMute('${track.id}')" class="px-1.5 py-0.5 text-[10px] rounded ${track.mute ? 'bg-red-600 text-white' : 'bg-neutral-800 text-neutral-400'} font-mono">M</button>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-[10px] text-neutral-400">
+                            <span>Track Fader Volume</span>
+                            <span class="font-mono text-neutral-200">${track.vol}%</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="${track.vol}" oninput="updateAudioVol('${track.id}', this.value)" class="w-full h-1 bg-neutral-800 rounded appearance-none cursor-pointer">
+                    </div>
+                `;
+                container.appendChild(fader);
+            });
+        }
+
+        function updateAudioVol(trackId, val) {
+            const t = tracks.find(tr => tr.id === trackId);
+            if (t) t.vol = parseInt(val);
+        }
+
+        function renderTimelineUI() {
+            const sidebar = document.getElementById('track-headers-sidebar');
+            const lanesViewport = document.getElementById('tracks-viewport');
+
+            sidebar.innerHTML = '<div class="h-6 bg-neutral-950 border-b border-nle-border flex items-center px-2 text-neutral-500 text-[9px]">TRACKS</div>';
+
+            lanesViewport.innerHTML = `
+                <div id="playhead" class="absolute top-0 bottom-0 w-0.5 bg-nle-accent z-30 pointer-events-none" style="left: ${playheadPosition}%;">
+                    <div class="playhead-head -ml-[6.5px] -mt-[6px]"></div>
+                </div>
+            `;
+
+            tracks.forEach(track => {
+                const hEl = document.createElement('div');
+                hEl.className = "h-8 border-b border-nle-border px-2 flex items-center justify-between bg-neutral-900 shrink-0";
+                const isVideo = track.type === 'video';
+                hEl.innerHTML = `
+                    <span class="px-1 ${isVideo ? 'bg-purple-900/60 text-purple-300' : 'bg-emerald-900/60 text-emerald-300'} rounded font-bold text-[9px]">${track.id}</span>
+                    <span class="text-neutral-300 text-[9px] truncate">${track.name}</span>
+                `;
+                sidebar.appendChild(hEl);
+
+                const laneEl = document.createElement('div');
+                laneEl.className = "h-8 border-b border-neutral-900 relative";
+                laneEl.ondragover = (e) => e.preventDefault();
+                laneEl.ondrop = (e) => onEffectDropOnTrack(e, track.id);
+
+                const trackClips = clips.filter(c => c.trackId === track.id);
+                trackClips.forEach(clip => {
+                    const cEl = document.createElement('div');
+                    cEl.className = `h-6 rounded ${track.color} text-white text-[10px] px-1.5 flex items-center justify-between shadow font-mono absolute top-1 select-none border group cursor-pointer`;
+                    cEl.style.left = clip.startPct + '%';
+                    cEl.style.width = clip.widthPct + '%';
+                    cEl.oncontextmenu = (e) => showContextMenu(e, clip.id);
+
+                    cEl.innerHTML = `
+                        <div class="w-2 h-full cursor-ew-resize bg-black/30 rounded-l hover:bg-white/40" onmousedown="initTrim(event, '${clip.id}', 'start')"></div>
+                        <span class="truncate px-1"><i class="fa-solid ${isVideo ? 'fa-film' : 'fa-waveform'} mr-1"></i>${clip.name} ${clip.fx.length ? `[${clip.fx.join(',')}]` : ''}</span>
+                        <div class="w-2 h-full cursor-ew-resize bg-black/30 rounded-r hover:bg-white/40" onmousedown="initTrim(event, '${clip.id}', 'end')"></div>
+                    `;
+                    laneEl.appendChild(cEl);
+                });
+
+                lanesViewport.appendChild(laneEl);
+            });
+        }
+
+        function onEffectDragStart(e, fxName) {
+            draggedEffectName = fxName;
+            e.dataTransfer.setData('text/plain', fxName);
+        }
+
+        function onEffectDropOnTrack(e, trackId) {
+            e.preventDefault();
+            if (!draggedEffectName) return;
+
+            const clip = clips.find(c => c.trackId === trackId);
+            if (clip) {
+                if (!clip.fx.includes(draggedEffectName)) {
+                    clip.fx.push(draggedEffectName);
+                    renderTimelineUI();
+                }
+            }
+        }
+
+        function razorSplitAtPlayhead() {
+            if (clips.length > 0) {
+                const target = clips[0];
+                const halfWidth = target.widthPct / 2;
+                target.widthPct = halfWidth;
+
+                const newClip = JSON.parse(JSON.stringify(target));
+                newClip.id = 'c_' + Date.now();
+                newClip.startPct = target.startPct + halfWidth;
+                clips.push(newClip);
+                renderTimelineUI();
+            }
+        }
+
+        function addTrack(type) {
+            if (type === 'video') {
+                const vCount = tracks.filter(t => t.type === 'video').length + 1;
+                const newId = `V${vCount}`;
+                tracks.unshift({ id: newId, type: 'video', name: `${newId} Video Layer`, mute: false, locked: false, color: 'bg-purple-900/80 border-purple-500' });
+            } else {
+                const aCount = tracks.filter(t => t.type === 'audio').length + 1;
+                const newId = `A${aCount}`;
+                tracks.push({ id: newId, type: 'audio', name: `${newId} Audio Track`, mute: false, locked: false, color: 'bg-teal-900/80 border-teal-500', vol: 80, pan: 0 });
+            }
+            renderTimelineUI();
+            renderAudioConsoleUI();
+        }
+
+        function zoomTimeline(factor) {
+            timelineZoomLevel = Math.max(0.5, Math.min(2.5, timelineZoomLevel * factor));
+            document.getElementById('tracks-viewport').style.transform = `scaleX(${timelineZoomLevel})`;
+            document.getElementById('zoom-val').innerText = Math.round(timelineZoomLevel * 100) + '%';
+        }
+
+        function renderLoop() {
+            mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+
+            const progress = playheadPosition / 100;
+            let camScale = 1;
+            let camPanX = 0;
+            let camPanY = 0;
+
+            if (cameraMotion === 'pan') camPanX = (progress - 0.5) * 120;
+            else if (cameraMotion === 'zoom') camScale = 1 + (progress * 0.15);
+            else if (cameraMotion === 'tracking') camPanX = Math.sin(progress * Math.PI * 2) * 40;
+            else if (cameraMotion === 'crane') camPanY = (progress - 0.5) * 80;
+
+            mainCtx.save();
+            mainCtx.translate(mainCanvas.width / 2, mainCanvas.height / 2);
+            mainCtx.scale(camScale, camScale);
+            mainCtx.translate(-mainCanvas.width / 2 + camPanX, -mainCanvas.height / 2 + camPanY);
+
+            if (activeBgImg.complete && activeBgImg.width > 0) {
+                mainCtx.save();
+                if (blurAmount > 0) mainCtx.filter = `blur(${blurAmount}px)`;
+                mainCtx.drawImage(activeBgImg, 0, 0, mainCanvas.width, mainCanvas.height);
+                mainCtx.restore();
+            }
+
+            actorProfiles.forEach((act) => {
+                if (act.img.complete && act.img.width > 0) {
+                    mainCtx.save();
+                    const scaleFactor = act.scale / 100;
+                    const width = 480 * scaleFactor;
+                    const height = 640 * scaleFactor;
+                    const x = (mainCanvas.width / 2) - (width / 2) + act.posX;
+                    const y = (mainCanvas.height / 2) - (height / 2) + 40 + act.posY;
+
+                    mainCtx.filter = `brightness(${act.light / 100})`;
+                    mainCtx.drawImage(act.img, x, y, width, height);
+                    mainCtx.restore();
+                }
+            });
+
+            mainCtx.restore();
+            requestAnimationFrame(renderLoop);
+        }
+
+        function togglePlayback() {
+            isPlaying = !isPlaying;
+            const playIcon = document.getElementById('play-icon');
+            if (isPlaying) {
+                playIcon.className = "fa-solid fa-pause text-xs";
+                playbackInterval = setInterval(advancePlayhead, 1000 / 24);
+            } else {
+                playIcon.className = "fa-solid fa-play text-xs";
+                clearInterval(playbackInterval);
+            }
+        }
+
+        function advancePlayhead() {
+            playheadPosition += 0.5;
+            if (playheadPosition > 100) {
+                if (isLooping) playheadPosition = 0;
+                else {
+                    playheadPosition = 100;
+                    togglePlayback();
+                }
+            }
+            updatePlayheadUI();
+        }
+
+        function stepFrame(dir) {
+            playheadPosition = Math.max(0, Math.min(100, playheadPosition + (dir * 0.5)));
+            updatePlayheadUI();
+        }
+
+        function updatePlayheadUI() {
+            const needle = document.getElementById('playhead');
+            if (needle) needle.style.left = playheadPosition + '%';
+            document.getElementById('transport-scrubber').value = playheadPosition;
+
+            const totalSecs = (playheadPosition / 100) * 5;
+            const secs = Math.floor(totalSecs);
+            const frames = Math.floor((totalSecs - secs) * 24);
+            document.getElementById('timecode-display').innerText = `00:00:${String(secs).padStart(2, '0')}:${String(frames).padStart(2, '0')}`;
+        }
+
+        function scrubFromTransport(val) {
+            playheadPosition = parseFloat(val);
+            updatePlayheadUI();
+        }
+
+        function scrubTimelineFromClick(e) {
+            const rect = document.getElementById('timeline-area').getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            playheadPosition = Math.max(0, Math.min(100, (clickX / rect.width) * 100));
+            updatePlayheadUI();
+        }
+
+        function updateTransforms() {
+            const act = actorProfiles[activeActorIndex];
+            act.scale = parseInt(document.getElementById('slider-actor-scale').value);
+            act.posX = parseInt(document.getElementById('slider-actor-x').value);
+            act.posY = parseInt(document.getElementById('slider-actor-y').value);
+
+            document.getElementById('val-actor-scale').innerText = act.scale + '%';
+            document.getElementById('val-actor-x').innerText = act.posX;
+            document.getElementById('val-actor-y').innerText = act.posY;
+        }
+
+        function updateFX() {
+            const act = actorProfiles[activeActorIndex];
+            act.keying = document.getElementById('fx-keying-toggle').checked;
+            act.light = parseInt(document.getElementById('slider-light').value);
+            blurAmount = parseInt(document.getElementById('slider-blur').value);
+
+            document.getElementById('val-light').innerText = act.light + '%';
+            document.getElementById('val-blur').innerText = blurAmount + 'px';
+        }
+
+        function switchLeftTab(tabName) {
+            ['actors', 'prompts', 'bg', 'audio'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}-btn`).className = "px-2 py-1 rounded-t text-neutral-400 hover:text-white font-medium";
+            });
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}-btn`).className = "px-2 py-1 rounded-t bg-nle-panel border-t border-x border-nle-accent text-white font-medium";
+        }
+
+        function openExportModal() {
+            document.getElementById('export-modal').classList.remove('hidden');
+
+            const seqName = document.getElementById('export-seq-name').value;
+            let actorPayload = actorProfiles.map(a => `  -- ${a.id} (${a.name}): Prompt="${a.prompt}" Dialogue="${a.dialogue}"`).join('\n');
+
+            const sql = `INSERT INTO SceneSequences (ProjectID, SceneNumber, SceneTitle, ActionDescription)\nVALUES (1, 1, '${seqName}', '\n${actorPayload}\n');`;
+            document.getElementById('sql-payload').value = sql;
+        }
+
+        function closeExportModal() {
+            document.getElementById('export-modal').classList.add('hidden');
+        }
+
+        function copyPayload() {
+            const payload = document.getElementById('sql-payload').value;
+            navigator.clipboard.writeText(payload);
+            closeExportModal();
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                mainCanvas.requestFullscreen().catch(err => console.log(err));
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function setLanguage(lang) {
+            const btnEn = document.getElementById('lang-en');
+            const btnRw = document.getElementById('lang-rw');
+
+            if (lang === 'en') {
+                btnEn.className = "px-2 py-0.5 text-[11px] rounded bg-nle-accent text-white font-medium";
+                btnRw.className = "px-2 py-0.5 text-[11px] rounded text-neutral-400 hover:text-white font-medium";
+                document.getElementById('txt-tab-actors').innerText = "Actors & IDs";
+                document.getElementById('txt-tab-prompts').innerText = "Actor Prompts";
+                document.getElementById('txt-tab-bg').innerText = "Backgrounds";
+                document.getElementById('txt-tab-audio').innerText = "Sound Console";
+                document.getElementById('txt-program-monitor').innerText = "Program Monitor: Sequence 01";
+                document.getElementById('txt-export-btn').innerText = "Export Scene";
+            } else {
+                btnRw.className = "px-2 py-0.5 text-[11px] rounded bg-nle-accent text-white font-medium";
+                btnEn.className = "px-2 py-0.5 text-[11px] rounded text-neutral-400 hover:text-white font-medium";
+                document.getElementById('txt-tab-actors').innerText = "Abakinnyi n'Inyandiko";
+                document.getElementById('txt-tab-prompts').innerText = "Inyandiko ku Mukinnyi";
+                document.getElementById('txt-tab-bg').innerText = "Amashusho y'Inyuma";
+                document.getElementById('txt-tab-audio').innerText = "Console y'Amajwi";
+                document.getElementById('txt-program-monitor').innerText = "Screen y'Ikinyemera: Sequence 01";
+                document.getElementById('txt-export-btn').innerText = "Sohora Scene";
+            }
+        }
     </script>
 </body>
 </html>
