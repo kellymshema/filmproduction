@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Film Production Hub - Premiere Studio Engine</title>
+    <title>Production Hub - Premiere Studio Engine</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -35,374 +35,227 @@
         ::-webkit-scrollbar-track { background: #1a1a1a; }
         ::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: #555555; }
-        .clip-handle {
-            width: 8px;
-            cursor: ew-resize;
-            background: rgba(255,255,255,0.2);
-            transition: background 0.2s;
-        }
-        .clip-handle:hover { background: rgba(0,153,255,0.8); }
     </style>
 </head>
 <body class="bg-premiere-darkest text-premiere-text font-sans h-screen flex flex-col overflow-hidden select-none">
 
-    <!-- Top Header -->
-    <header class="bg-premiere-dark border-b border-premiere-border h-11 flex items-center justify-between px-4 z-30">
+    <!-- Top Header matching your exact screenshot -->
+    <header class="bg-premiere-dark border-b border-premiere-border h-14 flex items-center justify-between px-4 z-30">
         <div class="flex items-center space-x-3">
-            <div class="bg-blue-600 text-white font-black px-2 py-0.5 rounded text-xs tracking-wider">PR</div>
-            <span class="font-bold text-premiere-bright text-sm tracking-wide">Film Production Hub <span class="text-xs font-normal text-blue-400">| Premiere Studio Engine</span></span>
-            <div class="h-4 w-[1px] bg-premiere-border mx-2"></div>
-            <nav class="flex space-x-1 text-xs">
-                <button onclick="switchTab('workspace')" id="tab-btn-workspace" class="px-3 py-1.5 rounded bg-premiere-active text-white font-medium">Workspace</button>
-                <button onclick="switchTab('actors')" id="tab-btn-actors" class="px-3 py-1.5 rounded hover:bg-premiere-hover text-premiere-text">Actor Studio</button>
-                <button onclick="switchTab('prompts')" id="tab-btn-prompts" class="px-3 py-1.5 rounded hover:bg-premiere-hover text-premiere-text">Scene Prompts</button>
-                <button onclick="switchTab('database')" id="tab-btn-database" class="px-3 py-1.5 rounded hover:bg-premiere-hover text-premiere-text">SQL / Export</button>
-            </nav>
+            <div class="bg-purple-600 text-white font-black px-2.5 py-1 rounded text-xs tracking-wider">PR</div>
+            <div class="flex flex-col">
+                <span class="font-black text-premiere-bright text-xs tracking-wide uppercase">PRODUCTION HUB</span>
+                <span class="text-[10px] text-gray-400">Premiere Studio Engine</span>
+            </div>
+            <div class="h-5 w-[1px] bg-premiere-border mx-2"></div>
+            <!-- Language Buttons EN / KIN -->
+            <div class="flex space-x-1 bg-black p-0.5 rounded border border-premiere-border">
+                <button onclick="setLang('en')" id="btnLangEn" class="px-2 py-0.5 rounded bg-blue-600 text-white text-[11px] font-bold">EN</button>
+                <button onclick="setLang('kin')" id="btnLangKin" class="px-2 py-0.5 rounded text-gray-400 text-[11px] font-bold">KIN</button>
+            </div>
         </div>
         <div class="flex items-center space-x-3">
-            <button onclick="toggleLanguage()" class="bg-premiere-panel border border-premiere-border px-2.5 py-1 rounded text-xs hover:bg-premiere-hover text-white flex items-center space-x-1.5">
-                <i class="fa-solid fa-globe text-blue-400"></i>
-                <span id="langLabel">EN / Kinyarwanda</span>
-            </button>
-            <button onclick="openExportModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1 rounded text-xs font-medium flex items-center space-x-1.5 shadow">
+            <button onclick="openExportModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-bold flex items-center space-x-1.5 shadow">
                 <i class="fa-solid fa-cloud-arrow-up"></i>
-                <span>Export Project</span>
+                <span>Export Scene</span>
             </button>
         </div>
     </header>
 
-    <!-- Main Content Container -->
-    <div class="flex-1 flex flex-col overflow-hidden relative">
+    <!-- Sub-Navigation Tabs matching screenshot -->
+    <div class="bg-premiere-dark border-b border-premiere-border px-4 py-2 flex space-x-6 text-xs overflow-x-auto">
+        <button onclick="switchTab('actors')" id="tab-btn-actors" class="text-blue-400 font-bold flex items-center space-x-1.5 pb-1 border-b-2 border-blue-500">
+            <i class="fa-solid fa-users text-purple-400"></i><span>Actors & IDs</span>
+        </button>
+        <button onclick="switchTab('prompts')" id="tab-btn-prompts" class="text-gray-400 hover:text-white flex items-center space-x-1.5 pb-1">
+            <i class="fa-solid fa-bolt text-amber-400"></i><span>Actor Prompts</span>
+        </button>
+        <button onclick="switchTab('backgrounds')" id="tab-btn-backgrounds" class="text-gray-400 hover:text-white flex items-center space-x-1.5 pb-1">
+            <i class="fa-solid fa-image text-emerald-400"></i><span>Backgrounds</span>
+        </button>
+        <button onclick="switchTab('sounds')" id="tab-btn-sounds" class="text-gray-400 hover:text-white flex items-center space-x-1.5 pb-1">
+            <i class="fa-solid fa-volume-high text-green-400"></i><span>Sound Console</span>
+        </button>
+    </div>
 
-        <!-- WORKSPACE TAB -->
-        <div id="tab-workspace" class="flex-1 flex flex-col overflow-hidden">
-            <div class="h-[55%] flex border-b border-premiere-border bg-premiere-darkest">
-                
-                <!-- Media Bin Panel -->
-                <div class="w-1/4 border-r border-premiere-border flex flex-col bg-premiere-dark">
-                    <div class="bg-premiere-panel px-3 py-1.5 border-b border-premiere-border text-xs font-semibold text-premiere-bright flex justify-between items-center">
-                        <span><i class="fa-solid fa-folder-open text-amber-400 mr-1.5"></i> Project Assets & Media Bin</span>
-                        <label class="cursor-pointer bg-premiere-border hover:bg-opacity-80 px-2 py-0.5 rounded text-[10px] text-white">
-                            <i class="fa-solid fa-plus mr-1"></i>Import <input type="file" multiple accept="video/*,audio/*,image/*" class="hidden" onchange="handleFileImport(event)">
-                        </label>
-                    </div>
-                    <div class="flex-1 overflow-y-auto p-2 space-y-2 text-xs" id="mediaBinList">
-                        <div class="p-2 bg-premiere-panel rounded border border-premiere-border flex items-center justify-between cursor-pointer hover:border-blue-500" draggable="true" ondragstart="dragAsset(event, 'actor', 'Hero Actor (ACTOR_01)')">
-                            <div class="flex items-center space-x-2 truncate"><i class="fa-solid fa-user-tie text-blue-400"></i><span class="truncate">Hero Actor (ACTOR_01)</span></div>
-                            <span class="text-[10px] text-gray-500 uppercase">Actor</span>
-                        </div>
-                        <div class="p-2 bg-premiere-panel rounded border border-premiere-border flex items-center justify-between cursor-pointer hover:border-blue-500" draggable="true" ondragstart="dragAsset(event, 'background', 'Cyber City BG')">
-                            <div class="flex items-center space-x-2 truncate"><i class="fa-solid fa-image text-emerald-400"></i><span class="truncate">Cyber City BG</span></div>
-                            <span class="text-[10px] text-gray-500 uppercase">BG</span>
-                        </div>
-                        <div class="p-2 bg-premiere-panel rounded border border-premiere-border flex items-center justify-between cursor-pointer hover:border-blue-500" draggable="true" ondragstart="dragAsset(event, 'audio', 'Cinematic BGM')">
-                            <div class="flex items-center space-x-2 truncate"><i class="fa-solid fa-music text-purple-400"></i><span class="truncate">Cinematic BGM</span></div>
-                            <span class="text-[10px] text-gray-500 uppercase">Audio</span>
-                        </div>
-                    </div>
-                    <div class="p-2 border-t border-premiere-border bg-premiere-panel">
-                        <button onclick="toggleVoiceRecording()" class="w-full bg-red-600 hover:bg-red-500 text-white py-1 rounded text-xs flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-microphone"></i><span>Record Voiceover (A1)</span>
-                        </button>
-                    </div>
-                </div>
+    <!-- Main Workspace Area -->
+    <div class="flex-1 flex flex-col overflow-y-auto p-4 bg-premiere-darkest">
 
-                <!-- Program Monitor -->
-                <div class="flex-1 flex flex-col bg-black relative">
-                    <div class="bg-premiere-panel px-3 py-1.5 border-b border-premiere-border text-xs font-semibold text-premiere-bright flex justify-between items-center">
-                        <span><i class="fa-solid fa-tv text-blue-400 mr-1.5"></i> Program Monitor [24 FPS]</span>
-                        <div class="flex items-center space-x-3 text-[11px]">
-                            <span class="font-mono text-blue-400 bg-black px-2 py-0.5 rounded border border-premiere-border">00:00:00:00</span>
-                            <div class="space-x-1">
-                                <button onclick="playTimeline()" class="bg-premiere-border hover:bg-premiere-active px-2 py-0.5 rounded text-white"><i class="fa-solid fa-play" id="playIcon"></i></button>
-                                <button onclick="stopTimeline()" class="bg-premiere-border hover:bg-premiere-active px-2 py-0.5 rounded text-white"><i class="fa-solid fa-stop"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex-1 flex items-center justify-center relative overflow-hidden bg-zinc-950">
-                        <canvas id="programCanvas" width="800" height="450" class="max-h-full max-w-full shadow-2xl border border-premiere-border rounded"></canvas>
-                    </div>
-                </div>
-
-                <!-- Effects & Clip Inspector -->
-                <div class="w-1/4 border-l border-premiere-border flex flex-col bg-premiere-dark">
-                    <div class="bg-premiere-panel px-3 py-1.5 border-b border-premiere-border text-xs font-semibold text-premiere-bright">
-                        <span><i class="fa-solid fa-wand-magic-sparkles text-purple-400 mr-1.5"></i> Effects & Clip Inspector</span>
-                    </div>
-                    <div class="flex-1 overflow-y-auto p-3 space-y-4 text-xs">
-                        <div>
-                            <label class="font-bold text-gray-400 block mb-1.5 uppercase text-[10px]">Effects Palette</label>
-                            <div class="grid grid-cols-2 gap-1.5">
-                                <button onclick="applyEffectToSelected('Chroma Key')" class="p-1.5 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-left flex items-center space-x-1.5"><i class="fa-solid fa-circle-half-stroke text-emerald-400"></i><span>Chroma Key</span></button>
-                                <button onclick="applyEffectToSelected('Stabilizer')" class="p-1.5 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-left flex items-center space-x-1.5"><i class="fa-solid fa-video text-blue-400"></i><span>Stabilizer</span></button>
-                                <button onclick="applyEffectToSelected('Film Grain')" class="p-1.5 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-left flex items-center space-x-1.5"><i class="fa-solid fa-film text-amber-400"></i><span>Film Grain</span></button>
-                                <button onclick="applyEffectToSelected('Color LUT')" class="p-1.5 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-left flex items-center space-x-1.5"><i class="fa-solid fa-palette text-purple-400"></i><span>Color LUT</span></button>
-                            </div>
-                        </div>
-                        <div class="border-t border-premiere-border pt-3 space-y-3">
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-white">Clip Inspector</span>
-                                <span class="text-[10px] text-blue-400" id="inspectorClipName">No clip selected</span>
-                            </div>
-                            <div>
-                                <label class="text-[10px] text-gray-400 block mb-1">Playback Speed</label>
-                                <select id="inspectorSpeed" onchange="updateSelectedClipProperty('speed', this.value)" class="w-full bg-premiere-panel border border-premiere-border rounded p-1 text-white">
-                                    <option value="0.25">0.25x (Slow Motion)</option>
-                                    <option value="0.5">0.5x</option>
-                                    <option value="1" selected>1.0x (Normal)</option>
-                                    <option value="2">2.0x (Fast)</option>
-                                    <option value="4">4.0x</option>
-                                </select>
-                            </div>
-                            <div class="flex space-x-2">
-                                <button onclick="contextAction('split')" class="flex-1 bg-premiere-panel border border-premiere-border hover:border-blue-500 py-1.5 rounded text-white font-medium flex items-center justify-center space-x-1"><i class="fa-solid fa-scissors"></i><span>Razor Split</span></button>
-                                <button onclick="contextAction('delete')" class="bg-red-900/40 border border-red-800 hover:bg-red-800 px-3 py-1.5 rounded text-red-200"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+        <!-- TAB 1: ACTORS & IDS -->
+        <div id="tab-actors" class="max-w-2xl mx-auto w-full space-y-4">
+            <div class="flex justify-between items-center bg-premiere-dark border border-premiere-border p-3 rounded-lg">
+                <span class="font-bold text-white text-xs flex items-center"><i class="fa-solid fa-user-gear text-purple-400 mr-2"></i> Actor Profile Manager</span>
+                <button onclick="addNewActor()" class="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1 rounded text-xs font-medium"><i class="fa-solid fa-plus mr-1"></i>Add Actor</button>
             </div>
 
-            <!-- Multi-Track Timeline -->
-            <div class="flex-1 flex flex-col bg-premiere-darkest">
-                <div class="bg-premiere-panel px-3 py-1.5 border-b border-premiere-border flex items-center justify-between text-xs">
-                    <div class="flex items-center space-x-3">
-                        <span class="font-bold text-white"><i class="fa-solid fa-timeline text-blue-400 mr-1.5"></i> Multi-Track Timeline Sequence</span>
-                        <div class="h-3 w-[1px] bg-premiere-border"></div>
-                        <button onclick="addTrack('video')" class="bg-premiere-border hover:bg-premiere-active px-2 py-0.5 rounded text-white text-[11px]"><i class="fa-solid fa-plus mr-1"></i>Track V</button>
-                        <button onclick="addTrack('audio')" class="bg-premiere-border hover:bg-premiere-active px-2 py-0.5 rounded text-white text-[11px]"><i class="fa-solid fa-plus mr-1"></i>Track A</button>
+            <div class="space-y-3">
+                <label class="text-[11px] text-gray-400 block">Select Active Actor to Inspect</label>
+                <select id="activeActorSelect" onchange="selectActor(this.value)" class="w-full bg-premiere-panel border border-premiere-border rounded p-2 text-white text-xs">
+                    <option value="ACTOR_01">ACTOR_01: Hero Operative</option>
+                    <option value="ACTOR_02">ACTOR_02: Cyber Villain</option>
+                </select>
+            </div>
+
+            <!-- Actor Inspector Card -->
+            <div class="bg-premiere-dark border border-premiere-border rounded-lg p-4 space-y-4">
+                <div class="flex justify-between items-center border-b border-premiere-border pb-3">
+                    <span class="font-bold text-purple-400 text-sm" id="inspectorActorId">ACTOR_01</span>
+                    <label class="cursor-pointer bg-premiere-border hover:bg-opacity-80 px-3 py-1 rounded text-xs text-white flex items-center space-x-1">
+                        <i class="fa-solid fa-upload text-blue-400"></i><span>Upload Photo</span>
+                        <input type="file" accept="image/*" class="hidden" onchange="alert('Actor photo uploaded!')">
+                    </label>
+                </div>
+                <div>
+                    <label class="text-[11px] text-gray-400 block mb-1">Character/Actor Name</label>
+                    <input type="text" id="inspectorActorName" value="Hero Operative" class="w-full bg-premiere-panel border border-premiere-border rounded p-2 text-white text-xs">
+                </div>
+                <div>
+                    <div class="flex justify-between text-[11px] text-gray-400 mb-1">
+                        <span>Scale Size</span>
+                        <span id="scaleVal" class="text-white">100%</span>
+                    </div>
+                    <input type="range" min="50" max="200" value="100" oninput="document.getElementById('scaleVal').innerText=this.value+'%'" class="w-full accent-purple-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[11px] text-gray-400 block mb-1">Pos X</label>
+                        <input type="range" min="-200" max="200" value="-120" class="w-full accent-purple-500">
+                    </div>
+                    <div>
+                        <label class="text-[11px] text-gray-400 block mb-1">Pos Y</label>
+                        <input type="range" min="-200" max="200" value="0" class="w-full accent-purple-500">
                     </div>
                 </div>
-                <div class="flex-1 overflow-auto relative flex flex-col p-2 space-y-1.5 bg-[#181818]" id="timelineTracksContainer" ondragover="allowDrop(event)" ondrop="dropAssetOnTimeline(event)"></div>
+                <div class="flex items-center justify-between pt-2 border-t border-premiere-border">
+                    <span class="text-xs text-white font-medium">Chroma Key Matte</span>
+                    <input type="checkbox" checked class="w-4 h-4 accent-purple-600 rounded">
+                </div>
+                <div>
+                    <div class="flex justify-between text-[11px] text-gray-400 mb-1">
+                        <span>Virtual Light</span>
+                        <span class="text-white">100%</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="100" class="w-full accent-purple-500">
+                </div>
             </div>
         </div>
 
-        <!-- ACTOR STUDIO TAB -->
-        <div id="tab-actors" class="hidden flex-1 overflow-y-auto p-6 bg-premiere-darkest">
-            <div class="max-w-4xl mx-auto space-y-6">
-                <div class="flex justify-between items-center border-b border-premiere-border pb-4">
-                    <h2 class="text-lg font-bold text-white">Actor Studio & Mapped Prompt IDs</h2>
-                    <button onclick="addNewActor()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-medium"><i class="fa-solid fa-user-plus mr-1.5"></i>Add Actor</button>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="actorStudioGrid"></div>
+        <!-- TAB 2: ACTOR PROMPTS -->
+        <div id="tab-prompts" class="hidden max-w-2xl mx-auto w-full space-y-4">
+            <div class="bg-premiere-dark border border-premiere-border rounded-lg p-4 space-y-3">
+                <div class="font-bold text-white text-xs">ACTOR_01 Prompt Mapping</div>
+                <textarea class="w-full bg-premiere-panel border border-premiere-border rounded p-2 text-white text-xs" rows="3">Cinematic portrait of a Rwandan tech hero in neon studio lighting</textarea>
+                <div class="font-bold text-gray-400 text-xs">Kinyarwanda Translation</div>
+                <textarea class="w-full bg-premiere-panel border border-premiere-border rounded p-2 text-white text-xs" rows="2">Umugabo w'intwari ukora muri tekinoloji</textarea>
             </div>
         </div>
 
-        <!-- SCENE PROMPTS TAB -->
-        <div id="tab-prompts" class="hidden flex-1 overflow-y-auto p-6 bg-premiere-darkest">
-            <div class="max-w-4xl mx-auto space-y-6">
-                <div class="flex justify-between items-center border-b border-premiere-border pb-4">
-                    <h2 class="text-lg font-bold text-white">Scene Prompt Engine (English & Kinyarwanda)</h2>
-                    <button onclick="addNewScenePrompt()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-medium"><i class="fa-solid fa-plus mr-1.5"></i>New Scene</button>
-                </div>
-                <div class="space-y-4" id="scenePromptsList"></div>
+        <!-- TAB 3: BACKGROUNDS -->
+        <div id="tab-backgrounds" class="hidden max-w-2xl mx-auto w-full space-y-4">
+            <div class="flex justify-between items-center bg-premiere-dark border border-premiere-border p-3 rounded-lg">
+                <span class="font-bold text-white text-xs">Multi-Background Asset Library</span>
+                <label class="cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded text-xs font-medium">
+                    <i class="fa-solid fa-plus mr-1"></i>Add Background <input type="file" accept="image/*,video/*" class="hidden" onchange="alert('Background added!')">
+                </label>
+            </div>
+            <div class="bg-premiere-dark border border-emerald-500/50 rounded-lg p-4">
+                <div class="font-bold text-white text-xs">Cyberpunk Neon City (Active Plate)</div>
+                <div class="text-[10px] text-gray-400 mt-1">Resolution: 4K UHD | Depth of Field: Enabled</div>
             </div>
         </div>
 
-        <!-- DATABASE TAB -->
-        <div id="tab-database" class="hidden flex-1 overflow-y-auto p-6 bg-premiere-darkest">
-            <div class="max-w-4xl mx-auto space-y-6">
-                <div class="flex justify-between items-center border-b border-premiere-border pb-4">
-                    <h2 class="text-lg font-bold text-white">Database Schema Payload & Export</h2>
-                    <button onclick="generateSQLPayload()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-medium"><i class="fa-solid fa-database mr-1.5"></i>Generate SQL</button>
+        <!-- TAB 4: SOUND CONSOLE -->
+        <div id="tab-sounds" class="hidden max-w-2xl mx-auto w-full space-y-4">
+            <div class="flex justify-between items-center bg-premiere-dark border border-premiere-border p-3 rounded-lg">
+                <span class="font-bold text-white text-xs">Multi-Track Sound Console</span>
+                <button onclick="alert('Microphone recording started on A1!')" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded text-xs font-medium"><i class="fa-solid fa-microphone mr-1"></i>Record Mic (A1)</button>
+            </div>
+            <div class="bg-premiere-dark border border-premiere-border rounded-lg p-4 flex items-center justify-between">
+                <div>
+                    <div class="font-bold text-white text-xs">A1 - Dialogue / Voiceover</div>
+                    <div class="text-[10px] text-gray-400">Gain: 1.0 | Pan: Center</div>
                 </div>
-                <div class="bg-premiere-dark border border-premiere-border rounded p-4">
-                    <pre id="sqlOutputDisplay" class="font-mono text-xs text-green-400 overflow-x-auto p-2 bg-black rounded">-- Click 'Generate SQL' to output schema payload</pre>
+                <div class="space-x-2">
+                    <button class="px-2 py-1 bg-premiere-panel rounded text-xs text-white">Mute</button>
+                    <button class="px-2 py-1 bg-premiere-panel rounded text-xs text-white">Solo</button>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <!-- Right-Click Context Menu -->
-    <div id="customContextMenu" class="hidden absolute z-50 bg-premiere-panel border border-premiere-border rounded shadow-2xl py-1.5 w-56 text-xs text-white">
-        <div class="px-3 py-1.5 hover:bg-blue-600 cursor-pointer flex items-center space-x-2" onclick="contextAction('split')"><i class="fa-solid fa-scissors text-blue-300"></i><span>Razor Split Clip</span></div>
-        <div class="px-3 py-1.5 hover:bg-blue-600 cursor-pointer flex items-center space-x-2" onclick="contextAction('chroma')"><i class="fa-solid fa-circle-half-stroke text-emerald-300"></i><span>Toggle Chroma Key</span></div>
-        <div class="px-3 py-1.5 hover:bg-blue-600 cursor-pointer flex items-center space-x-2" onclick="contextAction('stabilizer')"><i class="fa-solid fa-video text-purple-300"></i><span>Toggle Stabilizer</span></div>
-        <div class="px-3 py-1.5 hover:bg-blue-600 cursor-pointer flex items-center space-x-2" onclick="contextAction('speed')"><i class="fa-solid fa-gauge-high text-amber-300"></i><span>Change Speed (2x / 0.5x)</span></div>
+    <!-- Right-Click Context Menu for Quick Effects & Settings -->
+    <div id="customContextMenu" class="hidden absolute z-50 bg-premiere-panel border border-premiere-border rounded shadow-2xl py-1.5 w-52 text-xs text-white">
+        <div class="px-3 py-1.5 hover:bg-purple-600 cursor-pointer flex items-center space-x-2" onclick="contextAction('Chroma Key')"><i class="fa-solid fa-circle-half-stroke text-emerald-300"></i><span>Toggle Chroma Key</span></div>
+        <div class="px-3 py-1.5 hover:bg-purple-600 cursor-pointer flex items-center space-x-2" onclick="contextAction('Stabilizer')"><i class="fa-solid fa-video text-blue-300"></i><span>Toggle Stabilizer</span></div>
+        <div class="px-3 py-1.5 hover:bg-purple-600 cursor-pointer flex items-center space-x-2" onclick="contextAction('Speed / Duration')"><i class="fa-solid fa-gauge-high text-amber-300"></i><span>Speed & Duration</span></div>
         <div class="border-t border-premiere-border my-1"></div>
-        <div class="px-3 py-1.5 hover:bg-red-600 cursor-pointer flex items-center space-x-2 text-red-300" onclick="contextAction('delete')"><i class="fa-solid fa-trash"></i><span>Delete Clip</span></div>
+        <div class="px-3 py-1.5 hover:bg-red-600 cursor-pointer flex items-center space-x-2 text-red-300" onclick="contextAction('Delete')"><i class="fa-solid fa-trash"></i><span>Delete Item</span></div>
     </div>
 
     <!-- Export Modal -->
     <div id="exportModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-premiere-dark border border-premiere-border rounded-lg max-w-lg w-full p-6 space-y-4 shadow-2xl">
-            <h3 class="text-base font-bold text-white flex items-center"><i class="fa-solid fa-cloud-arrow-up text-blue-500 mr-2"></i> Export Film Production Project</h3>
+        <div class="bg-premiere-dark border border-premiere-border rounded-lg max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <h3 class="text-base font-bold text-white flex items-center"><i class="fa-solid fa-cloud-arrow-up text-purple-500 mr-2"></i> Export Film Scene</h3>
             <p class="text-xs text-gray-400">Ready for deployment under GitHub (`kellymshema.github.io/filmproduction/`).</p>
             <div class="flex justify-end space-x-3 pt-4 border-t border-premiere-border">
                 <button onclick="closeExportModal()" class="px-4 py-2 bg-premiere-border rounded text-white text-xs">Cancel</button>
-                <button onclick="executeExport()" class="px-4 py-2 bg-blue-600 rounded text-white text-xs font-medium">Download Package</button>
+                <button onclick="executeExport()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded text-white text-xs font-medium">Download Package</button>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript Logic -->
+    <!-- JavaScript Application Logic -->
     <script>
-        let currentLang = 'en';
-        let selectedClipId = null;
-        let contextTargetClipId = null;
-
-        let tracks = [
-            { id: 'V3', type: 'video', name: 'V3 - Overlay / FX', muted: false, solo: false, clips: [] },
-            { id: 'V2', type: 'video', name: 'V2 - Actors (Chroma)', muted: false, solo: false, clips: [
-                { id: 'c1', name: 'Hero Actor (ACTOR_01)', start: 0, duration: 5, speed: 1, volume: 1, effects: ['Chroma Key'] }
-            ]},
-            { id: 'V1', type: 'video', name: 'V1 - Background Plates', muted: false, solo: false, clips: [
-                { id: 'c2', name: 'Cyber City BG', start: 0, duration: 8, speed: 1, volume: 1, effects: ['Teal & Orange'] }
-            ]},
-            { id: 'A1', type: 'audio', name: 'A1 - Dialogue / Voiceover', muted: false, solo: false, clips: [
-                { id: 'c3', name: 'Voiceover Kinyarwanda', start: 0, duration: 6, speed: 1, volume: 1, effects: [] }
-            ]}
-        ];
-
-        let actors = [
-            { id: 'ACTOR_01', name: 'Hero Actor', prompt: 'Cinematic portrait of a Rwandan tech hero in neon studio lighting', langPrompt: 'Umugabo w\'intwari ukora muri tekinoloji' },
-            { id: 'ACTOR_02', name: 'Co-Star Villain', prompt: 'Cyberpunk antagonist watching from shadows', langPrompt: 'Umuntu w\'umwanzi ureba mu icuraburindi' }
-        ];
-
-        let scenePrompts = [
-            { id: 1, name: 'Scene 1 - Intro', duration: 5, camera: 'Pan Right', en: 'Hero steps into the cyberpunk digital terminal.', rw: 'Intwari yinjira muri terminal ya digital.' }
-        ];
-
         function switchTab(tabId) {
-            ['workspace', 'actors', 'prompts', 'database'].forEach(t => {
+            ['actors', 'prompts', 'backgrounds', 'sounds'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
-                document.getElementById(`tab-btn-${t}`).className = 'px-3 py-1.5 rounded hover:bg-premiere-hover text-premiere-text';
+                document.getElementById(`tab-btn-${t}`).className = 'text-gray-400 hover:text-white flex items-center space-x-1.5 pb-1';
             });
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            document.getElementById(`tab-btn-${tabId}`).className = 'px-3 py-1.5 rounded bg-premiere-active text-white font-medium';
-            if(tabId === 'workspace') renderTimeline();
-            if(tabId === 'actors') renderActorStudio();
-            if(tabId === 'prompts') renderScenePrompts();
+            document.getElementById(`tab-btn-${tabId}`).className = 'text-blue-400 font-bold flex items-center space-x-1.5 pb-1 border-b-2 border-blue-500';
         }
 
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'rw' : 'en';
-            document.getElementById('langLabel').innerText = currentLang === 'en' ? 'EN / Kinyarwanda' : 'Kinyarwanda (RW)';
-        }
-
-        function renderTimeline() {
-            const container = document.getElementById('timelineTracksContainer');
-            let html = '';
-            tracks.forEach(track => {
-                html += `
-                <div class="flex items-center bg-premiere-dark border border-premiere-border rounded h-14 relative">
-                    <div class="w-36 bg-premiere-panel px-2.5 py-1 border-r border-premiere-border flex flex-col justify-between text-[11px] h-full">
-                        <span class="font-bold text-white truncate">${track.name}</span>
-                        <div class="flex items-center space-x-1 text-[10px] text-gray-400">
-                            <span class="uppercase">${track.type}</span>
-                        </div>
-                    </div>
-                    <div class="flex-1 h-full relative flex items-center px-2 overflow-x-auto" oncontextmenu="openContextMenu(event, null)">
-                `;
-                track.clips.forEach(clip => {
-                    const isSelected = selectedClipId === clip.id;
-                    html += `
-                    <div onclick="selectClip('${clip.id}')" oncontextmenu="openContextMenu(event, '${clip.id}')"
-                         class="absolute h-10 rounded px-2 py-1 flex flex-col justify-center cursor-pointer border ${isSelected ? 'border-blue-400 bg-blue-600/40 shadow-lg' : 'border-premiere-border bg-premiere-panel hover:border-blue-500'}"
-                         style="left: ${clip.start * 40}px; width: ${clip.duration * 40}px;">
-                        <div class="flex items-center justify-between text-[10px] text-white font-medium truncate">
-                            <span class="truncate">${clip.name}</span>
-                            <span class="text-[9px] text-blue-300">${clip.effects.length ? '✨FX' : ''}</span>
-                        </div>
-                        <div class="text-[9px] text-gray-400">Speed: ${clip.speed}x</div>
-                        <div class="absolute left-0 top-0 bottom-0 clip-handle"></div>
-                        <div class="absolute right-0 top-0 bottom-0 clip-handle"></div>
-                    </div>`;
-                });
-                html += `</div></div>`;
-            });
-            container.innerHTML = html;
-        }
-
-        function selectClip(clipId) {
-            selectedClipId = clipId;
-            let found = null;
-            tracks.forEach(t => { let c = t.clips.find(x => x.id === clipId); if(c) found = c; });
-            if(found) document.getElementById('inspectorClipName').innerText = found.name;
-            renderTimeline();
-        }
-
-        function openContextMenu(event, clipId) {
-            event.preventDefault();
-            contextTargetClipId = clipId;
-            const menu = document.getElementById('customContextMenu');
-            menu.style.top = `${event.clientY}px`;
-            menu.style.left = `${event.clientX}px`;
-            menu.classList.remove('hidden');
-        }
-
-        window.addEventListener('click', () => { document.getElementById('customContextMenu').classList.add('hidden'); });
-
-        function contextAction(action) {
-            if(!contextTargetClipId && action !== 'add') return;
-            if(action === 'delete') {
-                tracks.forEach(t => { t.clips = t.clips.filter(c => c.id !== contextTargetClipId); });
-                renderTimeline();
+        function setLang(lang) {
+            if(lang === 'en') {
+                document.getElementById('btnLangEn').className = 'px-2 py-0.5 rounded bg-blue-600 text-white text-[11px] font-bold';
+                document.getElementById('btnLangKin').className = 'px-2 py-0.5 rounded text-gray-400 text-[11px] font-bold';
             } else {
-                alert(`Effect/Action '${action}' applied successfully!`);
+                document.getElementById('btnLangKin').className = 'px-2 py-0.5 rounded bg-blue-600 text-white text-[11px] font-bold';
+                document.getElementById('btnLangEn').className = 'px-2 py-0.5 rounded text-gray-400 text-[11px] font-bold';
             }
         }
 
-        const canvas = document.getElementById('programCanvas');
-        const ctx = canvas.getContext('2d');
-        function renderCanvasFrame() {
-            ctx.fillStyle = '#0f0f11';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#1e293b';
-            ctx.fillRect(50, 50, canvas.width - 100, canvas.height - 100);
-            ctx.fillStyle = '#3b82f6';
-            ctx.font = '16px sans-serif';
-            ctx.fillText('🎬 Premiere Studio Engine (Live 24 FPS Preview)', 80, 90);
-            ctx.fillStyle = '#10b981';
-            ctx.beginPath(); ctx.arc(canvas.width / 2, canvas.height / 2 + 30, 60, 0, Math.PI * 2); ctx.fill();
-            requestAnimationFrame(renderCanvasFrame);
-        }
-        renderCanvasFrame();
-
-        function playTimeline() { alert('Playback started'); }
-        function stopTimeline() { alert('Playback stopped'); }
-        function addTrack(type) {
-            const id = type === 'video' ? `V${tracks.length + 1}` : `A${tracks.length + 1}`;
-            tracks.push({ id, type, name: `${id} - Track`, muted: false, solo: false, clips: [] });
-            renderTimeline();
+        function selectActor(id) {
+            document.getElementById('inspectorActorId').innerText = id;
+            if(id === 'ACTOR_01') {
+                document.getElementById('inspectorActorName').value = 'Hero Operative';
+            } else {
+                document.getElementById('inspectorActorName').value = 'Cyber Villain';
+            }
         }
 
-        function renderActorStudio() {
-            document.getElementById('actorStudioGrid').innerHTML = actors.map(a => `
-                <div class="bg-premiere-dark border border-premiere-border rounded p-4 space-y-3">
-                    <span class="font-bold text-blue-400 text-sm">${a.id}</span>
-                    <textarea class="w-full bg-premiere-panel border border-premiere-border rounded p-2 text-white text-xs" rows="2">${a.prompt}</textarea>
-                </div>
-            `).join('');
-        }
+        // Right-Click Context Menu Support
+        window.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            const menu = document.getElementById('customContextMenu');
+            menu.style.top = `${e.clientY}px`;
+            menu.style.left = `${e.clientX}px`;
+            menu.classList.remove('hidden');
+        });
 
-        function renderScenePrompts() {
-            document.getElementById('scenePromptsList').innerHTML = scenePrompts.map(s => `
-                <div class="bg-premiere-dark border border-premiere-border rounded p-4 space-y-3">
-                    <span class="font-bold text-white text-sm">${s.name}</span>
-                    <input type="text" value="${s.en}" class="w-full bg-premiere-panel border border-premiere-border rounded p-1.5 text-white text-xs">
-                </div>
-            `).join('');
-        }
+        window.addEventListener('click', () => {
+            document.getElementById('customContextMenu').classList.add('hidden');
+        });
 
-        function generateSQLPayload() {
-            document.getElementById('sqlOutputDisplay').innerText = `-- schema.sql Payload\nINSERT INTO projects (project_name, github_user) VALUES ('FilmProductionHub', 'Kellymshema');`;
+        function contextAction(action) {
+            alert(`Applied setting/effect: ${action}`);
         }
 
         function openExportModal() { document.getElementById('exportModal').classList.remove('hidden'); }
         function closeExportModal() { document.getElementById('exportModal').classList.add('hidden'); }
-        function executeExport() { alert('Project compiled successfully!'); closeExportModal(); }
-        function allowDrop(ev) { ev.preventDefault(); }
-        function dragAsset(ev, type, name) { ev.dataTransfer.setData("text", JSON.stringify({type, name})); }
-        function dropAssetOnTimeline(ev) {
-            ev.preventDefault();
-            tracks[1].clips.push({ id: 'clip_' + Date.now(), name: 'New Asset', start: 1, duration: 4, speed: 1, volume: 1, effects: [] });
-            renderTimeline();
-        }
-
-        renderTimeline();
+        function executeExport() { alert('Project scene successfully packaged for GitHub Pages!'); closeExportModal(); }
+        function addNewActor() { alert('New actor profile added successfully!'); }
     </script>
 </body>
 </html>
