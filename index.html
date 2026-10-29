@@ -60,9 +60,25 @@
             border-right: 7px solid transparent;
             border-top: 10px solid #007acc;
         }
+
+        /* Context Menu Styles */
+        .context-menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 12px;
+            font-size: 11px;
+            color: #d4d4d8;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+        .context-menu-item:hover {
+            background-color: #007acc;
+            color: #ffffff;
+        }
     </style>
 </head>
-<body class="h-full flex flex-col font-sans overflow-hidden bg-nle-bg text-neutral-200 select-none">
+<body class="h-full flex flex-col font-sans overflow-hidden bg-nle-bg text-neutral-200 select-none" onclick="hideContextMenu()" oncontextmenu="return false;">
 
     <!-- TOP MENU & TOOLBAR -->
     <header class="h-10 bg-nle-header border-b border-nle-border flex items-center justify-between px-3 text-xs z-20 shrink-0">
@@ -438,6 +454,63 @@
         </main>
     </div>
 
+    <!-- PREMIERE-STYLE RIGHT-CLICK CONTEXT MENU -->
+    <div id="context-menu" class="hidden fixed bg-neutral-900 border border-nle-border rounded shadow-2xl z-50 w-52 py-1 flex flex-col divide-y divide-neutral-800">
+        <div class="px-3 py-1 font-mono text-[10px] text-neutral-400 bg-neutral-950 flex items-center justify-between">
+            <span id="context-clip-title">CLIP OPTIONS</span>
+            <i class="fa-solid fa-sliders text-blue-400"></i>
+        </div>
+        
+        <div>
+            <div onclick="contextAction('split')" class="context-menu-item">
+                <span><i class="fa-solid fa-scissors mr-2 text-amber-400"></i>Razor Split Clip</span>
+                <span class="font-mono text-[9px] text-neutral-500">C</span>
+            </div>
+            <div onclick="contextAction('duplicate')" class="context-menu-item">
+                <span><i class="fa-solid fa-copy mr-2 text-blue-400"></i>Duplicate Clip</span>
+                <span class="font-mono text-[9px] text-neutral-500">Ctrl+D</span>
+            </div>
+        </div>
+
+        <div>
+            <div onclick="contextAction('chroma')" class="context-menu-item">
+                <span><i class="fa-solid fa-mask mr-2 text-purple-400"></i>Toggle Chroma Key</span>
+                <i class="fa-solid fa-check text-[10px] text-emerald-400"></i>
+            </div>
+            <div onclick="contextAction('stabilizer')" class="context-menu-item">
+                <span><i class="fa-solid fa-video-slash mr-2 text-cyan-400"></i>Apply Stabilizer</span>
+            </div>
+            <div onclick="contextAction('mute')" class="context-menu-item">
+                <span><i class="fa-solid fa-volume-xmark mr-2 text-red-400"></i>Mute / Unmute Audio</span>
+            </div>
+        </div>
+
+        <div>
+            <div onclick="contextAction('speed_2')" class="context-menu-item">
+                <span><i class="fa-solid fa-gauge-high mr-2 text-emerald-400"></i>Speed: 2.0x Fast</span>
+            </div>
+            <div onclick="contextAction('speed_05')" class="context-menu-item">
+                <span><i class="fa-solid fa-gauge mr-2 text-amber-400"></i>Speed: 0.5x SlowMo</span>
+            </div>
+        </div>
+
+        <div>
+            <div onclick="contextAction('filter_teal')" class="context-menu-item">
+                <span><i class="fa-solid fa-palette mr-2 text-cyan-400"></i>Filter: Teal & Orange</span>
+            </div>
+            <div onclick="contextAction('filter_noir')" class="context-menu-item">
+                <span><i class="fa-solid fa-film mr-2 text-neutral-400"></i>Filter: Film Noir</span>
+            </div>
+        </div>
+
+        <div>
+            <div onclick="contextAction('delete')" class="context-menu-item text-red-400 hover:bg-red-950">
+                <span><i class="fa-solid fa-trash mr-2"></i>Delete Clip</span>
+                <span class="font-mono text-[9px]">Del</span>
+            </div>
+        </div>
+    </div>
+
     <!-- EXPORT MODAL -->
     <div id="export-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-nle-panel border border-nle-border rounded-lg max-w-lg w-full p-5 space-y-4 shadow-2xl">
@@ -470,7 +543,7 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT NLE ENGINE & MULTI-ACTOR LOGIC -->
+    <!-- JAVASCRIPT NLE ENGINE & RIGHT-CLICK CONTEXT LOGIC -->
     <script>
         // Dynamic Actor Profiles (Mapped by Actor ID)
         let actorProfiles = [
@@ -491,7 +564,7 @@
         let activeBgIndex = 0;
         const activeBgImg = new Image();
 
-        // Multi-Track Sequence Architecture (Video V1-V3, Audio A1-A4)
+        // Multi-Track Sequence Architecture
         let tracks = [
             { id: 'V3', type: 'video', name: 'V3 Actor Layer 2', mute: false, locked: false, color: 'bg-purple-900/80 border-purple-500' },
             { id: 'V2', type: 'video', name: 'V2 Actor Layer 1', mute: false, locked: false, color: 'bg-indigo-900/80 border-indigo-500' },
@@ -511,7 +584,7 @@
             { id: 'c6', trackId: 'A3', name: 'Rain_Thunder_SFX.wav', startPct: 15, widthPct: 75, fx: [] }
         ];
 
-        // Global Engine State
+        // Global State
         let isPlaying = false;
         let isLooping = true;
         let playheadPosition = 0;
@@ -520,8 +593,8 @@
         let blurAmount = 3;
         let timelineZoomLevel = 1.0;
         let draggedEffectName = null;
+        let selectedClipForContext = null;
 
-        // Canvas Elements
         let mainCanvas, mainCtx;
 
         window.onload = function() {
@@ -547,7 +620,83 @@
             requestAnimationFrame(renderLoop);
         };
 
-        // Initialize SVGs for Actors & Backgrounds
+        // Right-Click Context Menu Logic
+        function showContextMenu(e, clipId) {
+            e.preventDefault();
+            e.stopPropagation();
+            selectedClipForContext = clips.find(c => c.id === clipId);
+
+            const menu = document.getElementById('context-menu');
+            document.getElementById('context-clip-title').innerText = selectedClipForContext ? selectedClipForContext.name.toUpperCase() : 'CLIP OPTIONS';
+
+            let posX = e.clientX;
+            let posY = e.clientY;
+
+            // Boundary check
+            if (posX + 210 > window.innerWidth) posX = window.innerWidth - 220;
+            if (posY + 250 > window.innerHeight) posY = window.innerHeight - 260;
+
+            menu.style.left = posX + 'px';
+            menu.style.top = posY + 'px';
+            menu.classList.remove('hidden');
+        }
+
+        function hideContextMenu() {
+            document.getElementById('context-menu').classList.add('hidden');
+        }
+
+        function contextAction(actionType) {
+            if (!selectedClipForContext) return;
+
+            if (actionType === 'split') {
+                razorSplitAtPlayhead();
+            } else if (actionType === 'duplicate') {
+                const dup = JSON.parse(JSON.stringify(selectedClipForContext));
+                dup.id = 'c_' + Date.now();
+                dup.startPct = Math.min(85, dup.startPct + 10);
+                clips.push(dup);
+                renderTimelineUI();
+            } else if (actionType === 'chroma') {
+                const idx = selectedClipForContext.fx.indexOf('Chroma Key');
+                if (idx > -1) selectedClipForContext.fx.splice(idx, 1);
+                else selectedClipForContext.fx.push('Chroma Key');
+                renderTimelineUI();
+            } else if (actionType === 'stabilizer') {
+                if (!selectedClipForContext.fx.includes('Stabilizer')) {
+                    selectedClipForContext.fx.push('Stabilizer');
+                    renderTimelineUI();
+                }
+            } else if (actionType === 'mute') {
+                if (!selectedClipForContext.fx.includes('Mute Audio')) {
+                    selectedClipForContext.fx.push('Mute Audio');
+                } else {
+                    const idx = selectedClipForContext.fx.indexOf('Mute Audio');
+                    selectedClipForContext.fx.splice(idx, 1);
+                }
+                renderTimelineUI();
+            } else if (actionType === 'speed_2') {
+                selectedClipForContext.widthPct = Math.max(10, selectedClipForContext.widthPct / 2);
+                if (!selectedClipForContext.fx.includes('Speed 2x')) selectedClipForContext.fx.push('Speed 2x');
+                renderTimelineUI();
+            } else if (actionType === 'speed_05') {
+                selectedClipForContext.widthPct = Math.min(95, selectedClipForContext.widthPct * 1.5);
+                if (!selectedClipForContext.fx.includes('SlowMo 0.5x')) selectedClipForContext.fx.push('SlowMo 0.5x');
+                renderTimelineUI();
+            } else if (actionType === 'filter_teal') {
+                if (!selectedClipForContext.fx.includes('Teal & Orange')) selectedClipForContext.fx.push('Teal & Orange');
+                renderTimelineUI();
+            } else if (actionType === 'filter_noir') {
+                if (!selectedClipForContext.fx.includes('Film Noir')) selectedClipForContext.fx.push('Film Noir');
+                renderTimelineUI();
+            } else if (actionType === 'delete') {
+                clips = clips.filter(c => c.id !== selectedClipForContext.id);
+                renderTimelineUI();
+            }
+
+            hideContextMenu();
+        }
+
+        // Initialize SVGs
         function loadDefaultSVGs() {
             const svg1 = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800"><rect width="600" height="800" fill="#00ff00"/><circle cx="300" cy="240" r="70" fill="#e0a96d"/><path d="M200 800 L240 400 L300 350 L360 400 L400 800 Z" fill="#1e293b"/><text x="300" y="100" font-family="sans-serif" font-weight="bold" font-size="28" fill="#ffffff" text-anchor="middle">ACTOR 01 (HERO)</text></svg>`;
             const svg2 = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800"><rect width="600" height="800" fill="#00ff00"/><circle cx="300" cy="240" r="75" fill="#c58c5c"/><path d="M180 800 L230 380 L300 340 L370 380 L420 800 Z" fill="#0284c7"/><text x="300" y="100" font-family="sans-serif" font-weight="bold" font-size="28" fill="#ffffff" text-anchor="middle">ACTOR 02 (VILLAIN)</text></svg>`;
@@ -560,7 +709,6 @@
             loadBgPreset('bg1');
         }
 
-        // Render Actor Select Options
         function renderActorSelectDropdown() {
             const select = document.getElementById('actor-select');
             select.innerHTML = '';
@@ -626,7 +774,6 @@
             renderActorPromptsUI();
         }
 
-        // Render Dynamic Prompts per Actor ID
         function renderActorPromptsUI() {
             const container = document.getElementById('actor-prompts-container');
             container.innerHTML = '';
@@ -656,7 +803,6 @@
             actorProfiles[index][field] = val;
         }
 
-        // Background Library Logic
         function renderBackgroundLibraryUI() {
             const grid = document.getElementById('bg-library-grid');
             grid.innerHTML = '';
@@ -695,7 +841,6 @@
             activeBgImg.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svgStr);
         }
 
-        // Render Audio Console (A1 to A4)
         function renderAudioConsoleUI() {
             const container = document.getElementById('audio-faders-container');
             container.innerHTML = '';
@@ -715,13 +860,6 @@
                         </div>
                         <input type="range" min="0" max="100" value="${track.vol}" oninput="updateAudioVol('${track.id}', this.value)" class="w-full h-1 bg-neutral-800 rounded appearance-none cursor-pointer">
                     </div>
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-[10px] text-neutral-400">
-                            <span>Pan L/R</span>
-                            <span class="font-mono text-neutral-200">${track.pan}</span>
-                        </div>
-                        <input type="range" min="-50" max="50" value="${track.pan}" oninput="updateAudioPan('${track.id}', this.value)" class="w-full h-1 bg-neutral-800 rounded appearance-none cursor-pointer">
-                    </div>
                 `;
                 container.appendChild(fader);
             });
@@ -732,19 +870,12 @@
             if (t) t.vol = parseInt(val);
         }
 
-        function updateAudioPan(trackId, val) {
-            const t = tracks.find(tr => tr.id === trackId);
-            if (t) t.pan = parseInt(val);
-        }
-
-        // Timeline Multi-Track Rendering
         function renderTimelineUI() {
             const sidebar = document.getElementById('track-headers-sidebar');
             const lanesViewport = document.getElementById('tracks-viewport');
 
             sidebar.innerHTML = '<div class="h-6 bg-neutral-950 border-b border-nle-border flex items-center px-2 text-neutral-500 text-[9px]">TRACKS</div>';
 
-            // Preserve playhead needle
             lanesViewport.innerHTML = `
                 <div id="playhead" class="absolute top-0 bottom-0 w-0.5 bg-nle-accent z-30 pointer-events-none" style="left: ${playheadPosition}%;">
                     <div class="playhead-head -ml-[6.5px] -mt-[6px]"></div>
@@ -752,7 +883,6 @@
             `;
 
             tracks.forEach(track => {
-                // Sidebar Header
                 const hEl = document.createElement('div');
                 hEl.className = "h-8 border-b border-nle-border px-2 flex items-center justify-between bg-neutral-900 shrink-0";
                 const isVideo = track.type === 'video';
@@ -762,19 +892,18 @@
                 `;
                 sidebar.appendChild(hEl);
 
-                // Track Lane
                 const laneEl = document.createElement('div');
                 laneEl.className = "h-8 border-b border-neutral-900 relative";
                 laneEl.ondragover = (e) => e.preventDefault();
                 laneEl.ondrop = (e) => onEffectDropOnTrack(e, track.id);
 
-                // Render Clips belonging to this track
                 const trackClips = clips.filter(c => c.trackId === track.id);
                 trackClips.forEach(clip => {
                     const cEl = document.createElement('div');
-                    cEl.className = `h-6 rounded ${track.color} text-white text-[10px] px-1.5 flex items-center justify-between shadow font-mono absolute top-1 select-none border group`;
+                    cEl.className = `h-6 rounded ${track.color} text-white text-[10px] px-1.5 flex items-center justify-between shadow font-mono absolute top-1 select-none border group cursor-pointer`;
                     cEl.style.left = clip.startPct + '%';
                     cEl.style.width = clip.widthPct + '%';
+                    cEl.oncontextmenu = (e) => showContextMenu(e, clip.id);
 
                     cEl.innerHTML = `
                         <div class="w-2 h-full cursor-ew-resize bg-black/30 rounded-l hover:bg-white/40" onmousedown="initTrim(event, '${clip.id}', 'start')"></div>
@@ -788,7 +917,6 @@
             });
         }
 
-        // Touchpad Effect Drag and Drop Handlers
         function onEffectDragStart(e, fxName) {
             draggedEffectName = fxName;
             e.dataTransfer.setData('text/plain', fxName);
@@ -803,13 +931,22 @@
                 if (!clip.fx.includes(draggedEffectName)) {
                     clip.fx.push(draggedEffectName);
                     renderTimelineUI();
-                    alert(`Effect "${draggedEffectName}" applied to track ${trackId} (${clip.name})`);
                 }
             }
         }
 
         function razorSplitAtPlayhead() {
-            alert(`Razor split clip at current playhead position ${document.getElementById('timecode-display').innerText}`);
+            if (clips.length > 0) {
+                const target = clips[0];
+                const halfWidth = target.widthPct / 2;
+                target.widthPct = halfWidth;
+
+                const newClip = JSON.parse(JSON.stringify(target));
+                newClip.id = 'c_' + Date.now();
+                newClip.startPct = target.startPct + halfWidth;
+                clips.push(newClip);
+                renderTimelineUI();
+            }
         }
 
         function addTrack(type) {
@@ -832,7 +969,6 @@
             document.getElementById('zoom-val').innerText = Math.round(timelineZoomLevel * 100) + '%';
         }
 
-        // Real-Time Canvas Compositor Loop
         function renderLoop() {
             mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
 
@@ -851,7 +987,6 @@
             mainCtx.scale(camScale, camScale);
             mainCtx.translate(-mainCanvas.width / 2 + camPanX, -mainCanvas.height / 2 + camPanY);
 
-            // 1. Draw Background Plate (V1)
             if (activeBgImg.complete && activeBgImg.width > 0) {
                 mainCtx.save();
                 if (blurAmount > 0) mainCtx.filter = `blur(${blurAmount}px)`;
@@ -859,7 +994,6 @@
                 mainCtx.restore();
             }
 
-            // 2. Render Active Actor Profiles
             actorProfiles.forEach((act) => {
                 if (act.img.complete && act.img.width > 0) {
                     mainCtx.save();
@@ -879,7 +1013,6 @@
             requestAnimationFrame(renderLoop);
         }
 
-        // Transport Controls
         function togglePlayback() {
             isPlaying = !isPlaying;
             const playIcon = document.getElementById('play-icon');
@@ -980,7 +1113,6 @@
         function copyPayload() {
             const payload = document.getElementById('sql-payload').value;
             navigator.clipboard.writeText(payload);
-            alert("SQL Payload copied to clipboard!");
             closeExportModal();
         }
 
