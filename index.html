@@ -31,7 +31,6 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Custom Premiere Pro NLE Scrollbars & Styles */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #1a1a1a; }
         ::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 3px; }
@@ -47,7 +46,7 @@
 </head>
 <body class="bg-premiere-darkest text-premiere-text font-sans h-screen flex flex-col overflow-hidden select-none">
 
-    <!-- Top Application Header -->
+    <!-- Top Header -->
     <header class="bg-premiere-dark border-b border-premiere-border h-11 flex items-center justify-between px-4 z-30">
         <div class="flex items-center space-x-3">
             <div class="bg-blue-600 text-white font-black px-2 py-0.5 rounded text-xs tracking-wider">PR</div>
@@ -61,8 +60,7 @@
             </nav>
         </div>
         <div class="flex items-center space-x-3">
-            <!-- Language Toggle -->
-            <button onclick="toggleLanguage()" id="langToggleBtn" class="bg-premiere-panel border border-premiere-border px-2.5 py-1 rounded text-xs hover:bg-premiere-hover text-white flex items-center space-x-1.5">
+            <button onclick="toggleLanguage()" class="bg-premiere-panel border border-premiere-border px-2.5 py-1 rounded text-xs hover:bg-premiere-hover text-white flex items-center space-x-1.5">
                 <i class="fa-solid fa-globe text-blue-400"></i>
                 <span id="langLabel">EN / Kinyarwanda</span>
             </button>
@@ -73,63 +71,48 @@
         </div>
     </header>
 
-    <!-- Main Workspace Container -->
+    <!-- Main Content Container -->
     <div class="flex-1 flex flex-col overflow-hidden relative">
 
         <!-- WORKSPACE TAB -->
         <div id="tab-workspace" class="flex-1 flex flex-col overflow-hidden">
-            <!-- Top NLE Panels Area (Split into Media Bin, Program Monitor, FX Inspector) -->
             <div class="h-[55%] flex border-b border-premiere-border bg-premiere-darkest">
                 
-                <!-- 1. Project & Media Bin Panel -->
+                <!-- Media Bin Panel -->
                 <div class="w-1/4 border-r border-premiere-border flex flex-col bg-premiere-dark">
                     <div class="bg-premiere-panel px-3 py-1.5 border-b border-premiere-border text-xs font-semibold text-premiere-bright flex justify-between items-center">
                         <span><i class="fa-solid fa-folder-open text-amber-400 mr-1.5"></i> Project Assets & Media Bin</span>
-                        <div class="space-x-1">
-                            <label class="cursor-pointer bg-premiere-border hover:bg-opacity-80 px-2 py-0.5 rounded text-[10px] text-white">
-                                <i class="fa-solid fa-plus mr-1"></i>Import <input type="file" id="mediaUploadInput" multiple accept="video/*,audio/*,image/*" class="hidden" onchange="handleFileImport(event)">
-                            </label>
-                        </div>
+                        <label class="cursor-pointer bg-premiere-border hover:bg-opacity-80 px-2 py-0.5 rounded text-[10px] text-white">
+                            <i class="fa-solid fa-plus mr-1"></i>Import <input type="file" multiple accept="video/*,audio/*,image/*" class="hidden" onchange="handleFileImport(event)">
+                        </label>
                     </div>
                     <div class="flex-1 overflow-y-auto p-2 space-y-2 text-xs" id="mediaBinList">
-                        <!-- Dynamic Uploads & Presets will populate here -->
                         <div class="p-2 bg-premiere-panel rounded border border-premiere-border flex items-center justify-between cursor-pointer hover:border-blue-500" draggable="true" ondragstart="dragAsset(event, 'actor', 'Hero Actor (ACTOR_01)')">
-                            <div class="flex items-center space-x-2 truncate">
-                                <i class="fa-solid fa-user-tie text-blue-400"></i>
-                                <span class="truncate">Hero Actor (ACTOR_01)</span>
-                            </div>
+                            <div class="flex items-center space-x-2 truncate"><i class="fa-solid fa-user-tie text-blue-400"></i><span class="truncate">Hero Actor (ACTOR_01)</span></div>
                             <span class="text-[10px] text-gray-500 uppercase">Actor</span>
                         </div>
                         <div class="p-2 bg-premiere-panel rounded border border-premiere-border flex items-center justify-between cursor-pointer hover:border-blue-500" draggable="true" ondragstart="dragAsset(event, 'background', 'Cyber City BG')">
-                            <div class="flex items-center space-x-2 truncate">
-                                <i class="fa-solid fa-image text-emerald-400"></i>
-                                <span class="truncate">Cyber City BG</span>
-                            </div>
+                            <div class="flex items-center space-x-2 truncate"><i class="fa-solid fa-image text-emerald-400"></i><span class="truncate">Cyber City BG</span></div>
                             <span class="text-[10px] text-gray-500 uppercase">BG</span>
                         </div>
                         <div class="p-2 bg-premiere-panel rounded border border-premiere-border flex items-center justify-between cursor-pointer hover:border-blue-500" draggable="true" ondragstart="dragAsset(event, 'audio', 'Cinematic BGM')">
-                            <div class="flex items-center space-x-2 truncate">
-                                <i class="fa-solid fa-music text-purple-400"></i>
-                                <span class="truncate">Cinematic BGM</span>
-                            </div>
+                            <div class="flex items-center space-x-2 truncate"><i class="fa-solid fa-music text-purple-400"></i><span class="truncate">Cinematic BGM</span></div>
                             <span class="text-[10px] text-gray-500 uppercase">Audio</span>
                         </div>
                     </div>
-                    <!-- Voiceover Record Section -->
-                    <div class="p-2 border-t border-premiere-border bg-premiere-panel flex items-center justify-between">
-                        <button onclick="toggleVoiceRecording()" id="micRecordBtn" class="w-full bg-red-600 hover:bg-red-500 text-white py-1 rounded text-xs flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-microphone"></i>
-                            <span id="micRecordText">Record Voiceover (A1)</span>
+                    <div class="p-2 border-t border-premiere-border bg-premiere-panel">
+                        <button onclick="toggleVoiceRecording()" class="w-full bg-red-600 hover:bg-red-500 text-white py-1 rounded text-xs flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-microphone"></i><span>Record Voiceover (A1)</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- 2. Program Monitor (Canvas Compositor) -->
+                <!-- Program Monitor -->
                 <div class="flex-1 flex flex-col bg-black relative">
                     <div class="bg-premiere-panel px-3 py-1.5 border-b border-premiere-border text-xs font-semibold text-premiere-bright flex justify-between items-center">
                         <span><i class="fa-solid fa-tv text-blue-400 mr-1.5"></i> Program Monitor [24 FPS]</span>
                         <div class="flex items-center space-x-3 text-[11px]">
-                            <span id="timecodeDisplay" class="font-mono text-blue-400 bg-black px-2 py-0.5 rounded border border-premiere-border">00:00:00:00</span>
+                            <span class="font-mono text-blue-400 bg-black px-2 py-0.5 rounded border border-premiere-border">00:00:00:00</span>
                             <div class="space-x-1">
                                 <button onclick="playTimeline()" class="bg-premiere-border hover:bg-premiere-active px-2 py-0.5 rounded text-white"><i class="fa-solid fa-play" id="playIcon"></i></button>
                                 <button onclick="stopTimeline()" class="bg-premiere-border hover:bg-premiere-active px-2 py-0.5 rounded text-white"><i class="fa-solid fa-stop"></i></button>
@@ -137,48 +120,32 @@
                         </div>
                     </div>
                     <div class="flex-1 flex items-center justify-center relative overflow-hidden bg-zinc-950">
-                        <!-- Canvas Viewport -->
                         <canvas id="programCanvas" width="800" height="450" class="max-h-full max-w-full shadow-2xl border border-premiere-border rounded"></canvas>
-                        <!-- On-Screen Play Overlay -->
-                        <div id="canvasOverlayInfo" class="absolute bottom-3 left-3 bg-black/70 backdrop-blur px-3 py-1 rounded text-[11px] text-gray-300 pointer-events-none">
-                            Active Scene: <span class="text-white font-bold" id="activeSceneName">Scene 1 - Intro</span>
-                        </div>
                     </div>
                 </div>
 
-                <!-- 3. FX & Clip Inspector Panel -->
+                <!-- Effects & Clip Inspector -->
                 <div class="w-1/4 border-l border-premiere-border flex flex-col bg-premiere-dark">
-                    <div class="bg-premiere-panel px-3 py-1.5 border-b border-premiere-border text-xs font-semibold text-premiere-bright flex justify-between items-center">
+                    <div class="bg-premiere-panel px-3 py-1.5 border-b border-premiere-border text-xs font-semibold text-premiere-bright">
                         <span><i class="fa-solid fa-wand-magic-sparkles text-purple-400 mr-1.5"></i> Effects & Clip Inspector</span>
                     </div>
                     <div class="flex-1 overflow-y-auto p-3 space-y-4 text-xs">
-                        <!-- Effects Palette (Draggable / Clickable) -->
                         <div>
                             <label class="font-bold text-gray-400 block mb-1.5 uppercase text-[10px]">Effects Palette</label>
                             <div class="grid grid-cols-2 gap-1.5">
-                                <button onclick="applyEffectToSelected('Chroma Key')" class="p-1.5 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-left flex items-center space-x-1.5">
-                                    <i class="fa-solid fa-circle-half-stroke text-emerald-400"></i><span>Chroma Key</span>
-                                </button>
-                                <button onclick="applyEffectToSelected('Stabilizer')" class="p-1.5 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-left flex items-center space-x-1.5">
-                                    <i class="fa-solid fa-video text-blue-400"></i><span>Stabilizer</span>
-                                </button>
-                                <button onclick="applyEffectToSelected('Film Grain')" class="p-1.5 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-left flex items-center space-x-1.5">
-                                    <i class="fa-solid fa-film text-amber-400"></i><span>Film Grain</span>
-                                </button>
-                                <button onclick="applyEffectToSelected('Teal & Orange')" class="p-1.5 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-left flex items-center space-x-1.5">
-                                    <i class="fa-solid fa-palette text-purple-400"></i><span>Color LUT</span>
-                                </button>
+                                <button onclick="applyEffectToSelected('Chroma Key')" class="p-1.5 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-left flex items-center space-x-1.5"><i class="fa-solid fa-circle-half-stroke text-emerald-400"></i><span>Chroma Key</span></button>
+                                <button onclick="applyEffectToSelected('Stabilizer')" class="p-1.5 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-left flex items-center space-x-1.5"><i class="fa-solid fa-video text-blue-400"></i><span>Stabilizer</span></button>
+                                <button onclick="applyEffectToSelected('Film Grain')" class="p-1.5 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-left flex items-center space-x-1.5"><i class="fa-solid fa-film text-amber-400"></i><span>Film Grain</span></button>
+                                <button onclick="applyEffectToSelected('Color LUT')" class="p-1.5 bg-premiere-panel border border-premiere-border hover:border-blue-500 rounded text-left flex items-center space-x-1.5"><i class="fa-solid fa-palette text-purple-400"></i><span>Color LUT</span></button>
                             </div>
                         </div>
-
-                        <!-- Selected Clip Inspector Controls -->
-                        <div class="border-t border-premiere-border pt-3 space-y-3" id="clipInspectorContainer">
+                        <div class="border-t border-premiere-border pt-3 space-y-3">
                             <div class="flex justify-between items-center">
                                 <span class="font-bold text-white">Clip Inspector</span>
                                 <span class="text-[10px] text-blue-400" id="inspectorClipName">No clip selected</span>
                             </div>
                             <div>
-                                <label class="text-[10px] text-gray-400 block mb-1">Playback Speed / Duration</label>
+                                <label class="text-[10px] text-gray-400 block mb-1">Playback Speed</label>
                                 <select id="inspectorSpeed" onchange="updateSelectedClipProperty('speed', this.value)" class="w-full bg-premiere-panel border border-premiere-border rounded p-1 text-white">
                                     <option value="0.25">0.25x (Slow Motion)</option>
                                     <option value="0.5">0.5x</option>
@@ -187,17 +154,9 @@
                                     <option value="4">4.0x</option>
                                 </select>
                             </div>
-                            <div>
-                                <label class="text-[10px] text-gray-400 block mb-1">Volume Gain</label>
-                                <input type="range" id="inspectorVolume" min="0" max="2" step="0.1" value="1" oninput="updateSelectedClipProperty('volume', this.value)" class="w-full accent-blue-500">
-                            </div>
                             <div class="flex space-x-2">
-                                <button onclick="splitSelectedClip()" class="flex-1 bg-premiere-panel border border-premiere-border hover:border-blue-500 py-1.5 rounded text-white font-medium flex items-center justify-center space-x-1">
-                                    <i class="fa-solid fa-scissors"></i><span>Razor Split</span>
-                                </button>
-                                <button onclick="deleteSelectedClip()" class="bg-red-900/40 border border-red-800 hover:bg-red-800 px-3 py-1.5 rounded text-red-200">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
+                                <button onclick="contextAction('split')" class="flex-1 bg-premiere-panel border border-premiere-border hover:border-blue-500 py-1.5 rounded text-white font-medium flex items-center justify-center space-x-1"><i class="fa-solid fa-scissors"></i><span>Razor Split</span></button>
+                                <button onclick="contextAction('delete')" class="bg-red-900/40 border border-red-800 hover:bg-red-800 px-3 py-1.5 rounded text-red-200"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>
                     </div>
@@ -205,9 +164,8 @@
 
             </div>
 
-            <!-- Bottom NLE Multi-Track Timeline Area -->
+            <!-- Multi-Track Timeline -->
             <div class="flex-1 flex flex-col bg-premiere-darkest">
-                <!-- Timeline Toolbar -->
                 <div class="bg-premiere-panel px-3 py-1.5 border-b border-premiere-border flex items-center justify-between text-xs">
                     <div class="flex items-center space-x-3">
                         <span class="font-bold text-white"><i class="fa-solid fa-timeline text-blue-400 mr-1.5"></i> Multi-Track Timeline Sequence</span>
@@ -215,23 +173,8 @@
                         <button onclick="addTrack('video')" class="bg-premiere-border hover:bg-premiere-active px-2 py-0.5 rounded text-white text-[11px]"><i class="fa-solid fa-plus mr-1"></i>Track V</button>
                         <button onclick="addTrack('audio')" class="bg-premiere-border hover:bg-premiere-active px-2 py-0.5 rounded text-white text-[11px]"><i class="fa-solid fa-plus mr-1"></i>Track A</button>
                     </div>
-                    <div class="flex items-center space-x-3">
-                        <span class="text-[11px] text-gray-400">Zoom:</span>
-                        <input type="range" min="50" max="200" value="100" oninput="zoomTimeline(this.value)" class="w-24 accent-blue-500">
-                        <button onclick="mergeSequence()" class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1 rounded text-xs font-medium">
-                            <i class="fa-solid fa-object-ungroup mr-1"></i>Merge Clips
-                        </button>
-                    </div>
                 </div>
-
-                <!-- Timeline Tracks Container -->
-                <div class="flex-1 overflow-auto relative flex flex-col p-2 space-y-1.5 bg-[#181818]" id="timelineTracksContainer" ondragover="allowDrop(event)" ondrop="dropAssetOnTimeline(event)">
-                    <!-- Playhead Scrubber Line -->
-                    <div id="timelinePlayhead" class="absolute top-0 bottom-0 w-[2px] bg-red-500 z-20 pointer-events-none left-40">
-                        <div class="w-3 h-3 bg-red-500 rounded-full -ml-1.5 -mt-1 shadow"></div>
-                    </div>
-                    <!-- Tracks generated dynamically via JS -->
-                </div>
+                <div class="flex-1 overflow-auto relative flex flex-col p-2 space-y-1.5 bg-[#181818]" id="timelineTracksContainer" ondragover="allowDrop(event)" ondrop="dropAssetOnTimeline(event)"></div>
             </div>
         </div>
 
@@ -239,17 +182,10 @@
         <div id="tab-actors" class="hidden flex-1 overflow-y-auto p-6 bg-premiere-darkest">
             <div class="max-w-4xl mx-auto space-y-6">
                 <div class="flex justify-between items-center border-b border-premiere-border pb-4">
-                    <div>
-                        <h2 class="text-lg font-bold text-white">Actor Studio & Mapped Prompt IDs</h2>
-                        <p class="text-xs text-gray-400">Manage unique actor green-screens, IDs (ACTOR_01...), and individual scene prompts.</p>
-                    </div>
-                    <button onclick="addNewActor()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-medium">
-                        <i class="fa-solid fa-user-plus mr-1.5"></i>Add Actor
-                    </button>
+                    <h2 class="text-lg font-bold text-white">Actor Studio & Mapped Prompt IDs</h2>
+                    <button onclick="addNewActor()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-medium"><i class="fa-solid fa-user-plus mr-1.5"></i>Add Actor</button>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="actorStudioGrid">
-                    <!-- Populated dynamically -->
-                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="actorStudioGrid"></div>
             </div>
         </div>
 
@@ -257,34 +193,22 @@
         <div id="tab-prompts" class="hidden flex-1 overflow-y-auto p-6 bg-premiere-darkest">
             <div class="max-w-4xl mx-auto space-y-6">
                 <div class="flex justify-between items-center border-b border-premiere-border pb-4">
-                    <div>
-                        <h2 class="text-lg font-bold text-white">Scene Prompt Engine (English & Kinyarwanda)</h2>
-                        <p class="text-xs text-gray-400">Configure camera movements, scene duration, and bilingual dialogue prompts.</p>
-                    </div>
-                    <button onclick="addNewScenePrompt()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-medium">
-                        <i class="fa-solid fa-plus mr-1.5"></i>New Scene Prompt
-                    </button>
+                    <h2 class="text-lg font-bold text-white">Scene Prompt Engine (English & Kinyarwanda)</h2>
+                    <button onclick="addNewScenePrompt()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-medium"><i class="fa-solid fa-plus mr-1.5"></i>New Scene</button>
                 </div>
-                <div class="space-y-4" id="scenePromptsList">
-                    <!-- Populated dynamically -->
-                </div>
+                <div class="space-y-4" id="scenePromptsList"></div>
             </div>
         </div>
 
-        <!-- DATABASE & SQL EXPORT TAB -->
+        <!-- DATABASE TAB -->
         <div id="tab-database" class="hidden flex-1 overflow-y-auto p-6 bg-premiere-darkest">
             <div class="max-w-4xl mx-auto space-y-6">
                 <div class="flex justify-between items-center border-b border-premiere-border pb-4">
-                    <div>
-                        <h2 class="text-lg font-bold text-white">Database Schema Payload & Export</h2>
-                        <p class="text-xs text-gray-400">Aligned with your `schema.sql` backend structure for Supabase / MySQL / SQL Server.</p>
-                    </div>
-                    <button onclick="generateSQLPayload()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-medium">
-                        <i class="fa-solid fa-database mr-1.5"></i>Generate SQL Script
-                    </button>
+                    <h2 class="text-lg font-bold text-white">Database Schema Payload & Export</h2>
+                    <button onclick="generateSQLPayload()" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs font-medium"><i class="fa-solid fa-database mr-1.5"></i>Generate SQL</button>
                 </div>
                 <div class="bg-premiere-dark border border-premiere-border rounded p-4">
-                    <pre id="sqlOutputDisplay" class="font-mono text-xs text-green-400 overflow-x-auto p-2 bg-black rounded">-- Click 'Generate SQL Script' to output schema payload</pre>
+                    <pre id="sqlOutputDisplay" class="font-mono text-xs text-green-400 overflow-x-auto p-2 bg-black rounded">-- Click 'Generate SQL' to output schema payload</pre>
                 </div>
             </div>
         </div>
@@ -305,31 +229,20 @@
     <div id="exportModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-premiere-dark border border-premiere-border rounded-lg max-w-lg w-full p-6 space-y-4 shadow-2xl">
             <h3 class="text-base font-bold text-white flex items-center"><i class="fa-solid fa-cloud-arrow-up text-blue-500 mr-2"></i> Export Film Production Project</h3>
-            <p class="text-xs text-gray-400">Your project package is ready for GitHub deployment (`filmproductionkelly.com` / GitHub Pages).</p>
-            <div class="space-y-2 text-xs">
-                <label class="block text-gray-300 font-medium">Export Format</label>
-                <select class="w-full bg-premiere-panel border border-premiere-border rounded p-2 text-white">
-                    <option>Single-File HTML Bundle (Ready for GitHub Pages)</option>
-                    <option>JSON Sequence Manifest</option>
-                    <option>SQL Database Dump (`schema.sql` compliant)</option>
-                </select>
-            </div>
+            <p class="text-xs text-gray-400">Ready for deployment under GitHub (`kellymshema.github.io/filmproduction/`).</p>
             <div class="flex justify-end space-x-3 pt-4 border-t border-premiere-border">
-                <button onclick="closeExportModal()" class="px-4 py-2 bg-premiere-border hover:bg-premiere-active rounded text-white text-xs">Cancel</button>
-                <button onclick="executeExport()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded text-white text-xs font-medium">Download Package</button>
+                <button onclick="closeExportModal()" class="px-4 py-2 bg-premiere-border rounded text-white text-xs">Cancel</button>
+                <button onclick="executeExport()" class="px-4 py-2 bg-blue-600 rounded text-white text-xs font-medium">Download Package</button>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript Application Logic -->
+    <!-- JavaScript Logic -->
     <script>
         let currentLang = 'en';
-        let isPlaying = false;
-        let playheadTime = 0; // in seconds
         let selectedClipId = null;
         let contextTargetClipId = null;
 
-        // Multi-Track State
         let tracks = [
             { id: 'V3', type: 'video', name: 'V3 - Overlay / FX', muted: false, solo: false, clips: [] },
             { id: 'V2', type: 'video', name: 'V2 - Actors (Chroma)', muted: false, solo: false, clips: [
@@ -343,15 +256,13 @@
             ]}
         ];
 
-        // Actor Studio State
         let actors = [
-            { id: 'ACTOR_01', name: 'Hero Actor', prompt: 'Cinematic portrait of a Rwandan tech hero in neon studio lighting', action: 'Subtle smile & confident look', langPrompt: 'Umugabo w\'intwari ukora muri tekinoloji' },
-            { id: 'ACTOR_02', name: 'Co-Star Villain', prompt: 'Cyberpunk antagonist watching from shadows', action: 'Slow head turn', langPrompt: 'Umuntu w\'umwanzi ureba mu icuraburindi' }
+            { id: 'ACTOR_01', name: 'Hero Actor', prompt: 'Cinematic portrait of a Rwandan tech hero in neon studio lighting', langPrompt: 'Umugabo w\'intwari ukora muri tekinoloji' },
+            { id: 'ACTOR_02', name: 'Co-Star Villain', prompt: 'Cyberpunk antagonist watching from shadows', langPrompt: 'Umuntu w\'umwanzi ureba mu icuraburindi' }
         ];
 
-        // Scene Prompts State
         let scenePrompts = [
-            { id: 1, name: 'Scene 1 - Intro', duration: 5, camera: 'Pan Right', lighting: 'Neon Blue', en: 'Hero steps into the cyberpunk digital terminal.', rw: 'Intwari yinjira muri terminal ya digital.' }
+            { id: 1, name: 'Scene 1 - Intro', duration: 5, camera: 'Pan Right', en: 'Hero steps into the cyberpunk digital terminal.', rw: 'Intwari yinjira muri terminal ya digital.' }
         ];
 
         function switchTab(tabId) {
@@ -369,69 +280,51 @@
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'rw' : 'en';
             document.getElementById('langLabel').innerText = currentLang === 'en' ? 'EN / Kinyarwanda' : 'Kinyarwanda (RW)';
-            alert(currentLang === 'rw' ? 'Ururimi rwahindutse kuri Kinyarwanda!' : 'Language switched to English!');
         }
 
-        // Render Timeline UI
         function renderTimeline() {
             const container = document.getElementById('timelineTracksContainer');
-            let html = `<div id="timelinePlayhead" class="absolute top-0 bottom-0 w-[2px] bg-red-500 z-20 pointer-events-none" style="left: ${80 + (playheadTime * 40)}px">
-                <div class="w-3 h-3 bg-red-500 rounded-full -ml-1.5 -mt-1 shadow"></div>
-            </div>`;
-
+            let html = '';
             tracks.forEach(track => {
                 html += `
-                <div class="flex items-center bg-premiere-dark border border-premiere-border rounded h-14 relative group">
+                <div class="flex items-center bg-premiere-dark border border-premiere-border rounded h-14 relative">
                     <div class="w-36 bg-premiere-panel px-2.5 py-1 border-r border-premiere-border flex flex-col justify-between text-[11px] h-full">
                         <span class="font-bold text-white truncate">${track.name}</span>
                         <div class="flex items-center space-x-1 text-[10px] text-gray-400">
-                            <button onclick="toggleTrackMute('${track.id}')" class="px-1 rounded bg-premiere-border ${track.muted?'text-red-400':''} hover:text-white">M</button>
-                            <button onclick="toggleTrackSolo('${track.id}')" class="px-1 rounded bg-premiere-border ${track.solo?'text-yellow-400':''} hover:text-white">S</button>
                             <span class="uppercase">${track.type}</span>
                         </div>
                     </div>
-                    <div class="flex-1 h-full relative flex items-center px-2 overflow-x-auto" oncontextmenu="openContextMenu(event, null, '${track.id}')">
+                    <div class="flex-1 h-full relative flex items-center px-2 overflow-x-auto" oncontextmenu="openContextMenu(event, null)">
                 `;
-
                 track.clips.forEach(clip => {
                     const isSelected = selectedClipId === clip.id;
                     html += `
-                    <div draggable="true" ondragstart="dragClip(event, '${clip.id}')" onclick="selectClip('${clip.id}')" oncontextmenu="openContextMenu(event, '${clip.id}', '${track.id}')"
-                         class="absolute h-10 rounded px-2 py-1 flex flex-col justify-center cursor-pointer border ${isSelected ? 'border-blue-400 bg-blue-600/40 shadow-lg' : 'border-premiere-border bg-premiere-panel hover:border-blue-500'} transition-all"
+                    <div onclick="selectClip('${clip.id}')" oncontextmenu="openContextMenu(event, '${clip.id}')"
+                         class="absolute h-10 rounded px-2 py-1 flex flex-col justify-center cursor-pointer border ${isSelected ? 'border-blue-400 bg-blue-600/40 shadow-lg' : 'border-premiere-border bg-premiere-panel hover:border-blue-500'}"
                          style="left: ${clip.start * 40}px; width: ${clip.duration * 40}px;">
                         <div class="flex items-center justify-between text-[10px] text-white font-medium truncate">
                             <span class="truncate">${clip.name}</span>
-                            <span class="text-[9px] text-blue-300 ml-1">${clip.effects.length > 0 ? '✨FX' : ''}</span>
+                            <span class="text-[9px] text-blue-300">${clip.effects.length ? '✨FX' : ''}</span>
                         </div>
-                        <div class="text-[9px] text-gray-400 truncate">Speed: ${clip.speed}x</div>
-                        <div class="absolute left-0 top-0 bottom-0 clip-handle" title="Trim Start"></div>
-                        <div class="absolute right-0 top-0 bottom-0 clip-handle" title="Trim End"></div>
+                        <div class="text-[9px] text-gray-400">Speed: ${clip.speed}x</div>
+                        <div class="absolute left-0 top-0 bottom-0 clip-handle"></div>
+                        <div class="absolute right-0 top-0 bottom-0 clip-handle"></div>
                     </div>`;
                 });
-
                 html += `</div></div>`;
             });
-
             container.innerHTML = html;
         }
 
         function selectClip(clipId) {
             selectedClipId = clipId;
             let found = null;
-            tracks.forEach(t => {
-                let c = t.clips.find(x => x.id === clipId);
-                if(c) found = c;
-            });
-            if(found) {
-                document.getElementById('inspectorClipName').innerText = found.name;
-                document.getElementById('inspectorSpeed').value = found.speed;
-                document.getElementById('inspectorVolume').value = found.volume;
-            }
+            tracks.forEach(t => { let c = t.clips.find(x => x.id === clipId); if(c) found = c; });
+            if(found) document.getElementById('inspectorClipName').innerText = found.name;
             renderTimeline();
         }
 
-        // Context Menu Handlers
-        function openContextMenu(event, clipId, trackId) {
+        function openContextMenu(event, clipId) {
             event.preventDefault();
             contextTargetClipId = clipId;
             const menu = document.getElementById('customContextMenu');
@@ -440,133 +333,76 @@
             menu.classList.remove('hidden');
         }
 
-        window.addEventListener('click', () => {
-            document.getElementById('customContextMenu').classList.add('hidden');
-        });
+        window.addEventListener('click', () => { document.getElementById('customContextMenu').classList.add('hidden'); });
 
         function contextAction(action) {
             if(!contextTargetClipId && action !== 'add') return;
             if(action === 'delete') {
-                tracks.forEach(t => {
-                    t.clips = t.clips.filter(c => c.id !== contextTargetClipId);
-                });
+                tracks.forEach(t => { t.clips = t.clips.filter(c => c.id !== contextTargetClipId); });
                 renderTimeline();
-            } else if(action === 'chroma' || action === 'stabilizer' || action === 'split') {
-                alert(`Applied ${action} effect to target clip successfully!`);
+            } else {
+                alert(`Effect/Action '${action}' applied successfully!`);
             }
         }
 
-        // Canvas Compositor Render Loop
         const canvas = document.getElementById('programCanvas');
         const ctx = canvas.getContext('2d');
-
         function renderCanvasFrame() {
             ctx.fillStyle = '#0f0f11';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw Background simulation
             ctx.fillStyle = '#1e293b';
             ctx.fillRect(50, 50, canvas.width - 100, canvas.height - 100);
             ctx.fillStyle = '#3b82f6';
             ctx.font = '16px sans-serif';
             ctx.fillText('🎬 Premiere Studio Engine (Live 24 FPS Preview)', 80, 90);
-
-            // Draw Active Actors / Overlays
             ctx.fillStyle = '#10b981';
-            ctx.beginPath();
-            ctx.arc(canvas.width / 2, canvas.height / 2 + 30, 60, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '12px sans-serif';
-            ctx.fillText('ACTOR_01 (Chroma Key Active)', canvas.width / 2 - 80, canvas.height / 2 + 110);
-
+            ctx.beginPath(); ctx.arc(canvas.width / 2, canvas.height / 2 + 30, 60, 0, Math.PI * 2); ctx.fill();
             requestAnimationFrame(renderCanvasFrame);
         }
         renderCanvasFrame();
 
-        function playTimeline() {
-            isPlaying = true;
-            document.getElementById('playIcon').className = 'fa-solid fa-pause';
-        }
-
-        function stopTimeline() {
-            isPlaying = false;
-            playheadTime = 0;
-            document.getElementById('playIcon').className = 'fa-solid fa-play';
-        }
-
+        function playTimeline() { alert('Playback started'); }
+        function stopTimeline() { alert('Playback stopped'); }
         function addTrack(type) {
-            const id = type === 'video' ? `V${tracks.filter(t=>t.type==='video').length + 1}` : `A${tracks.filter(t=>t.type==='audio').length + 1}`;
-            tracks.push({ id, type, name: `${id} - New Track`, muted: false, solo: false, clips: [] });
+            const id = type === 'video' ? `V${tracks.length + 1}` : `A${tracks.length + 1}`;
+            tracks.push({ id, type, name: `${id} - Track`, muted: false, solo: false, clips: [] });
             renderTimeline();
         }
 
         function renderActorStudio() {
-            const grid = document.getElementById('actorStudioGrid');
-            grid.innerHTML = actors.map(a => `
+            document.getElementById('actorStudioGrid').innerHTML = actors.map(a => `
                 <div class="bg-premiere-dark border border-premiere-border rounded p-4 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-blue-400 text-sm">${a.id}</span>
-                        <input type="text" value="${a.name}" class="bg-premiere-panel border border-premiere-border rounded px-2 py-1 text-white text-xs">
-                    </div>
-                    <div>
-                        <label class="text-[10px] text-gray-400 block mb-1">English Prompt / Action</label>
-                        <textarea class="w-full bg-premiere-panel border border-premiere-border rounded p-2 text-white text-xs" rows="2">${a.prompt}</textarea>
-                    </div>
-                    <div>
-                        <label class="text-[10px] text-gray-400 block mb-1">Kinyarwanda Prompt (Uburyo bwa Kinyarwanda)</label>
-                        <textarea class="w-full bg-premiere-panel border border-premiere-border rounded p-2 text-white text-xs" rows="2">${a.langPrompt}</textarea>
-                    </div>
+                    <span class="font-bold text-blue-400 text-sm">${a.id}</span>
+                    <textarea class="w-full bg-premiere-panel border border-premiere-border rounded p-2 text-white text-xs" rows="2">${a.prompt}</textarea>
                 </div>
             `).join('');
         }
 
         function renderScenePrompts() {
-            const list = document.getElementById('scenePromptsList');
-            list.innerHTML = scenePrompts.map(s => `
+            document.getElementById('scenePromptsList').innerHTML = scenePrompts.map(s => `
                 <div class="bg-premiere-dark border border-premiere-border rounded p-4 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-white text-sm">${s.name}</span>
-                        <span class="text-xs text-blue-400">Duration: ${s.duration}s | Camera: ${s.camera}</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3 text-xs">
-                        <div>
-                            <label class="text-[10px] text-gray-400 block mb-1">English Prompt</label>
-                            <input type="text" value="${s.en}" class="w-full bg-premiere-panel border border-premiere-border rounded p-1.5 text-white">
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-gray-400 block mb-1">Kinyarwanda Translation</label>
-                            <input type="text" value="${s.rw}" class="w-full bg-premiere-panel border border-premiere-border rounded p-1.5 text-white">
-                        </div>
-                    </div>
+                    <span class="font-bold text-white text-sm">${s.name}</span>
+                    <input type="text" value="${s.en}" class="w-full bg-premiere-panel border border-premiere-border rounded p-1.5 text-white text-xs">
                 </div>
             `).join('');
         }
 
         function generateSQLPayload() {
-            const sql = `-- schema.sql Payload for Film Production Hub
-INSERT INTO projects (project_name, github_user, domain) VALUES ('FilmProductionHub', 'Kellymshema', 'filmproductionkelly.com');
-INSERT INTO scenes (scene_id, duration, camera_motion, lighting) VALUES (1, 5.0, 'Pan Right', 'Neon Blue');
-INSERT INTO actors (actor_id, prompt_en, prompt_rw) VALUES ('ACTOR_01', 'Cinematic portrait of Rwandan tech hero', 'Umuhanga muri tekinoloji');`;
-            document.getElementById('sqlOutputDisplay').innerText = sql;
+            document.getElementById('sqlOutputDisplay').innerText = `-- schema.sql Payload\nINSERT INTO projects (project_name, github_user) VALUES ('FilmProductionHub', 'Kellymshema');`;
         }
 
         function openExportModal() { document.getElementById('exportModal').classList.remove('hidden'); }
         function closeExportModal() { document.getElementById('exportModal').classList.add('hidden'); }
-        function executeExport() {
-            alert('Project package successfully compiled for GitHub deployment!');
-            closeExportModal();
-        }
-
-        // Drag & Drop helper stubs
+        function executeExport() { alert('Project compiled successfully!'); closeExportModal(); }
         function allowDrop(ev) { ev.preventDefault(); }
         function dragAsset(ev, type, name) { ev.dataTransfer.setData("text", JSON.stringify({type, name})); }
         function dropAssetOnTimeline(ev) {
             ev.preventDefault();
-            const data = JSON.parse(ev.dataTransfer.getData("text"));
-            tracks[1].clips.push({ id: 'clip_' + Date.now(), name: data.name, start: 2, duration: 4, speed: 1, volume: 1, effects: [] });
+            tracks[1].clips.push({ id: 'clip_' + Date.now(), name: 'New Asset', start: 1, duration: 4, speed: 1, volume: 1, effects: [] });
             renderTimeline();
         }
+
+        renderTimeline();
     </script>
 </body>
 </html>
